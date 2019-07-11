@@ -1,0 +1,119 @@
+{
+	"name": "tfs-scm",
+	"displayName": "tfs-scm",
+	"description": "TFS Source Control",
+	"version": "0.0.1",
+	"engines": {
+		"vscode": "^1.36.0"
+	},
+	"categories": [
+		"Other"
+	],
+	"activationEvents": [
+		"workspaceContains:tfsconf.json"
+	],
+	"main": "./out/extension.js",
+	"contributes": {
+		"configuration": {
+			"title": "TFS configuration",
+			"properties": {
+				"tfsSCM.tfsPath": {
+					"type": "string",
+					"scope": "resource",
+					"default": "C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Professional\\Common7\\IDE\\CommonExtensions\\Microsoft\\TeamFoundation\\Team Explorer\\tf.exe",
+					"description": "Path to the TFS command line client (tf.exe)."
+				}
+			}
+		},
+		"commands": [
+			{
+				"command": "tfs-scm.info",
+				"title": "Info",
+				"category": "TFS"
+			},
+			{
+                "command": "tfs-scm.add",
+                "title": "Add",
+                "category": "TFS"
+            },
+            {
+                "command": "tfs-scm.checkout",
+                "title": "Check Out for Edit",
+                "category": "TFS"
+            },
+            {
+                "command": "tfs-scm.rm",
+                "title": "Delete",
+                "category": "TFS"
+            },
+            {
+                "command": "tfs-scm.undo",
+                "title": "Undo Pending Changes",
+                "category": "TFS"
+            },
+            {
+                "command": "tfs-scm.openInBrowser",
+                "title": "Open in Browser",
+                "category": "TFS"
+            }
+		],
+		"menus": {
+			"explorer/context": [
+				{
+					"command": "tfs-scm.add"
+				},
+				{
+					"command": "tfs-scm.checkout"
+				},
+				{
+					"command": "tfs-scm.undo"
+				},
+				{
+					"command": "tfs-scm.rm"
+				},
+				{
+					"command": "tfs-scm.openInBrowser"
+				}
+			],
+			"editor/title/context": [
+				{
+					"command": "tfs-scm.add"
+				},
+				{
+					"command": "tfs-scm.checkout"
+				},
+				{
+					"command": "tfs-scm.undo"
+				},
+				{
+					"command": "tfs-scm.rm"
+				},
+				{
+					"command": "tfs-scm.openInBrowser"
+				}
+			]
+		}
+	},
+	"scripts": {
+		"vscode:prepublish": "npm run compile",
+		"compile": "tsc -p ./",
+		"watch": "tsc -watch -p ./",
+		"pretest": "npm run compile",
+		"test": "node ./out/test/runTest.js"
+	},
+	"devDependencies": {
+		"@types/glob": "^7.1.1",
+		"@types/mocha": "^5.2.6",
+		"@types/node": "^10.12.21",
+		"@types/vscode": "^1.36.0",
+		"glob": "^7.1.4",
+		"mocha": "^6.1.4",
+		"typescript": "^3.3.1",
+		"tslint": "^5.12.1",
+		"vscode-test": "^1.0.0-next.0"
+	},
+	"dependencies": {
+		"@types/child-process-promise": "^2.2.1",
+		"child-process-promise": "^2.2.1"
+	}
+}
