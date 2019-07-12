@@ -51,12 +51,20 @@
 			{
 				"command": "tfs-scm.refresh",
 				"title": "Refresh Explorer",
-				"category": "TFS"
+				"category": "TFS",
+				"icon": {
+					"dark": "icons/dark/refresh.svg",
+					"light": "icons/light/refresh.svg"
+				}
 			},
 			{
 				"command": "tfs-scm.get",
 				"title": "Get Latest",
-				"category": "TFS"
+				"category": "TFS",
+				"icon": {
+					"dark": "icons/dark/get.svg",
+					"light": "icons/light/get.svg"
+				}
 			},
 			{
                 "command": "tfs-scm.add",
@@ -64,32 +72,120 @@
 				"category": "TFS",
 				"icon": {
 					"dark": "icons/dark/add.svg",
-					"light": "icons/light/add.svg"
+					"light": "icons/light/add.svg",
+					"icon": {
+						"dark": "icons/dark/add.svg",
+						"light": "icons/light/add.svg"
+					}
 				}
             },
             {
                 "command": "tfs-scm.checkout",
                 "title": "Check Out for Edit",
-                "category": "TFS"
+				"category": "TFS",
+				"icon": {
+					"dark": "icons/dark/edit.svg",
+					"light": "icons/light/edit.svg"
+				}
             },
             {
                 "command": "tfs-scm.rm",
                 "title": "Delete from TFS",
 				"category": "TFS",
 				"icon": {
-					"dark": "icons/dark/remove.svg",
-					"light": "icons/light/remove.svg"
+					"dark": "icons/dark/delete.svg",
+					"light": "icons/light/delete.svg"
 				}
             },
             {
                 "command": "tfs-scm.undo",
                 "title": "Undo Pending Changes",
-                "category": "TFS"
+				"category": "TFS",
+				"icon": {
+					"dark": "icons/dark/undo.svg",
+					"light": "icons/light/undo.svg"
+				}
             },
             {
                 "command": "tfs-scm.openInBrowser",
                 "title": "Open in TFS Web UI",
-                "category": "TFS"
+				"category": "TFS",
+				"icon": {
+					"dark": "icons/dark/browse.svg",
+					"light": "icons/light/browse.svg"
+				}
+			},
+			{
+                "command": "tfs-scm.browse",
+                "title": "Browse",
+				"category": "TFS",
+				"icon": {
+					"dark": "icons/dark/browse.svg",
+					"light": "icons/light/browse.svg"
+				}
+			},
+			{
+                "command": "tfs-scm.discard",
+                "title": "Discard All",
+				"category": "TFS",
+				"icon": {
+					"dark": "icons/dark/delete.svg",
+					"light": "icons/light/delete.svg"
+				}
+			},
+			{
+                "command": "tfs-scm.commit",
+                "title": "Commit",
+				"category": "TFS",
+				"icon": {
+					"dark": "icons/dark/check-circle.svg",
+					"light": "icons/light/check-circle.svg"
+				}
+            },
+			{
+                "command": "tfs-scm.include",
+                "title": "Include",
+				"category": "TFS",
+				"icon": {
+					"dark": "icons/dark/add.svg",
+					"light": "icons/light/add.svg"
+				}
+            },
+			{
+                "command": "tfs-scm.exclude",
+                "title": "Exclude",
+				"category": "TFS",
+				"icon": {
+					"dark": "icons/dark/remove.svg",
+					"light": "icons/light/remove.svg"
+				}
+			},
+			{
+                "command": "tfs-scm.include-all",
+                "title": "Include All",
+				"category": "TFS",
+				"icon": {
+					"dark": "icons/dark/add.svg",
+					"light": "icons/light/add.svg"
+				}
+            },
+			{
+                "command": "tfs-scm.exclude-all",
+                "title": "Exclude All",
+				"category": "TFS",
+				"icon": {
+					"dark": "icons/dark/remove.svg",
+					"light": "icons/light/remove.svg"
+				}
+			},
+			{
+                "command": "tfs-scm.undo-all",
+                "title": "Undo All",
+				"category": "TFS",
+				"icon": {
+					"dark": "icons/dark/undo.svg",
+					"light": "icons/light/undo.svg"
+				}
             }
 		],
 		"menus": {
@@ -134,6 +230,85 @@
 				},
 				{
 					"command": "tfs-scm.openInBrowser"
+				}
+			],
+			"scm/title": [
+				{
+					"command": "tfs-scm.commit",
+					"group": "navigation",
+					"when": "scmProvider == tfs"
+				},
+				{
+					"command": "tfs-scm.discard",
+					"group": "navigation",
+					"when": "scmProvider == tfs"
+				},
+				{
+					"command": "tfs-scm.refresh",
+					"group": "navigation",
+					"when": "scmProvider == tfs"
+				},
+				{
+					"command": "tfs-scm.browse",
+					"when": "scmProvider == tfs"
+				}
+			],
+			"scm/sourceControl": [
+				{
+					"command": "tfs-scm.undo",
+					"when": "scmProvider == tfs"
+				}
+			],
+			"scm/resourceGroup/context": [
+				{
+					"command": "tfs-scm.include-all",
+					"group": "inline",
+					"when": "scmProvider == tfs && scmResourceGroup == tfs-excluded-changes"
+
+				},
+				{
+					"command": "tfs-scm.exclude-all",
+					"group": "inline",
+					"when": "scmProvider == tfs && scmResourceGroup == tfs-included-changes"
+				},
+				{
+					"command": "tfs-scm.undo-all",
+					"group": "inline",
+					"when": "scmProvider == tfs"
+				}
+			],
+			"scm/resourceState/context": [
+				{
+					"command": "tfs-scm.include",
+					"group": "inline",
+					"when": "scmProvider == tfs && scmResourceGroup == tfs-excluded-changes"
+
+				},
+				{
+					"command": "tfs-scm.exclude",
+					"group": "inline",
+					"when": "scmProvider == tfs  && scmResourceGroup == tfs-included-changes"
+				},
+				{
+					"command": "tfs-scm.undo",
+					"group": "inline",
+					"when": "scmProvider == tfs"
+				},
+				{
+					"command": "tfs-scm.include",
+					"group": "navigation",
+					"when": "scmProvider == tfs && scmResourceGroup == tfs-excluded-changes"
+
+				},
+				{
+					"command": "tfs-scm.exclude",
+					"group": "navigation",
+					"when": "scmProvider == tfs  && scmResourceGroup == tfs-included-changes"
+				},
+				{
+					"command": "tfs-scm.undo",
+					"group": "navigation",
+					"when": "scmProvider == tfs"
 				}
 			]
 		}
