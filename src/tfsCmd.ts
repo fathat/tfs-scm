@@ -5,7 +5,7 @@ export async function tfcmd(args: string[]) {
     const tfPath = vscode.workspace.getConfiguration("tfsSCM", null).get<string>("tfsPath");
     if(typeof tfPath !== 'undefined') {
         try {
-            return await cpp.spawn(tfPath, args, { capture: ["stdout", "stderr"] })
+            return await cpp.spawn(tfPath, args, { capture: ["stdout", "stderr"] });
         }
         catch(err) {
             throw err.stderr ? new Error(err.stderr) : err;

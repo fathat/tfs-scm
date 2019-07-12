@@ -14,6 +14,23 @@
 	],
 	"main": "./out/extension.js",
 	"contributes": {
+		"viewsContainers": {
+			"activitybar": [
+			  {
+				"id": "tfs-activity",
+				"title": "TFS",
+				"icon": "icons/tfs.svg"
+			  }
+			]
+		},
+		"views": {
+			"tfs-activity": [
+			{
+			  "id": "tfs-workspaces",
+			  "name": "Workspaces"
+			}
+		  ]
+		},
 		"configuration": {
 			"title": "TFS configuration",
 			"properties": {
@@ -28,32 +45,40 @@
 		"commands": [
 			{
 				"command": "tfs-scm.info",
-				"title": "Info",
+				"title": "TFS: Info",
 				"category": "TFS"
 			},
 			{
                 "command": "tfs-scm.add",
-                "title": "Add",
-                "category": "TFS"
+                "title": "TFS: Add",
+				"category": "TFS",
+				"icon": {
+					"dark": "icons/dark/add.svg",
+					"light": "icons/light/add.svg"
+				}
             },
             {
                 "command": "tfs-scm.checkout",
-                "title": "Check Out for Edit",
+                "title": "TFS: Check Out for Edit",
                 "category": "TFS"
             },
             {
                 "command": "tfs-scm.rm",
-                "title": "Delete",
-                "category": "TFS"
+                "title": "TFS: Delete",
+				"category": "TFS",
+				"icon": {
+					"dark": "icons/dark/remove.svg",
+					"light": "icons/light/remove.svg"
+				}
             },
             {
                 "command": "tfs-scm.undo",
-                "title": "Undo Pending Changes",
+                "title": "TFS: Undo Pending Changes",
                 "category": "TFS"
             },
             {
                 "command": "tfs-scm.openInBrowser",
-                "title": "Open in Browser",
+                "title": "TFS: Open in Browser",
                 "category": "TFS"
             }
 		],

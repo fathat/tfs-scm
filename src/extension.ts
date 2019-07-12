@@ -5,6 +5,7 @@ import { TFSSourceControl } from './tfsSourceControl';
 import { TFSDocumentContentProvider } from './tfsDocumentContentProvider';
 import { WorkspaceFolder } from 'vscode';
 import { pathToFileURL } from 'url';
+import { emitKeypressEvents } from 'readline';
 
 const SOURCE_CONTROL_OPEN_COMMAND = 'extension.source-control.open';
 
@@ -31,6 +32,10 @@ export function activate(context: vscode.ExtensionContext) {
 	
 	context.subscriptions.push(vscode.commands.registerCommand('tfs-scm.info', () => {
 		vscode.window.showInformationMessage('TFS-SCM Running!');
+		
+		for(let [key, scm] of scmMap) {
+			
+		}
 	}));
 
 	context.subscriptions.push(vscode.commands.registerCommand('tfs-scm.add', commands.add));
