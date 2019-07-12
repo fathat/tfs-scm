@@ -33,7 +33,7 @@ export class TFSSourceControlManager {
                 },
                 //err
                 (reason) => {
-                    this.out.appendLine(`Workspace folder ${folder.uri} does not contain a tfsconf.json, skipping`)
+                    this.out.appendLine(`Workspace folder ${folder.uri} does not contain a tfsconf.json, skipping`);
                 });
         }
 
