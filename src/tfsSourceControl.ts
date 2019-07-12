@@ -24,6 +24,10 @@ export class TFSSourceControl implements vscode.Disposable {
 		fileSystemWatcher.onDidCreate(uri => this.onResourceCreate(uri), context.subscriptions);
         fileSystemWatcher.onDidDelete(uri => this.onResourceDelete(uri), context.subscriptions);
         
+        this.update();
+    }
+
+    update() {
         this.repo.provideStatus().then((items: TFSStatusItem[]) => {
             this.updateChanges(items);
         });
@@ -34,18 +38,10 @@ export class TFSSourceControl implements vscode.Disposable {
         let excChanges: vscode.SourceControlResourceState[] = [];
 
         for(const item of items) {
-            const docUri = Uri.file(item.localpath);
-            let resourceState: vscode.SourceControlResourceState = {
-                resourceUri: docUri,
-                decorations: {
-                    strikeThrough: false,
-                    tooltip: item.serverpath
-                }
-            };
             if(item.changeset) {
-                incChanges.push(resourceState);
+                incChanges.push(item);
             } else {
-                excChanges.push(resourceState);
+                excChanges.push(item);
             }
         }
 

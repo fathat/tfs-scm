@@ -1,6 +1,7 @@
-import { QuickDiffProvider, WorkspaceFolder, CancellationToken, ProviderResult, Uri, workspace } from "vscode";
+import { QuickDiffProvider, WorkspaceFolder, CancellationToken, ProviderResult, Uri, workspace, SourceControlResourceState } from "vscode";
 import * as path from 'path';
 import { tfcmd } from "./tfsCmd";
+import * as vscode from 'vscode';
 
 export const TFS_SCHEME = 'tfs';
 
@@ -10,14 +11,27 @@ const reLocalFilePath = /^  Local item : \[.*\] (.*)/;
 const reChangeType =    /^  Change(\s+): (.*)/;
 const reWorkspace =    /^  Workspace(\s+): (.*)/;
 
-export class TFSStatusItem {
+export class TFSStatusItemDecoration implements vscode.SourceControlResourceDecorations {
+	
+}
+
+export class TFSStatusItem implements SourceControlResourceState {
+	
+	public command?: vscode.Command | undefined;
+	public decorations?: vscode.SourceControlResourceDecorations | undefined;
 	
 	constructor(
+		public resourceUri: Uri,
 		public serverpath: string,
-		public localpath: string,
 		public changetype: string,
 		public workspace: string,
-		public changeset: string) {}
+		public changeset: string) {
+		
+		this.decorations = {
+			strikeThrough: changetype === 'deleted',
+			tooltip: serverpath
+		};
+	}
 }
 
 export class TFSRepository implements QuickDiffProvider {
@@ -30,7 +44,7 @@ export class TFSRepository implements QuickDiffProvider {
 	}
 
 	public async provideStatus() {
-		const result = await tfcmd(["stat", "/format:detailed"]);
+		const result = await tfcmd(["stat", "/format:detailed"], this.workspaceFolder.uri.fsPath);
 		const lines = result.stdout.split('\r\n');
 
 		let statusItems: TFSStatusItem[] = [];
@@ -48,8 +62,8 @@ export class TFSRepository implements QuickDiffProvider {
 				if (serverpath) {
 					if(currentStatusItem !== null && currentStatusItem.inworkspace) {
 						statusItems.push(new TFSStatusItem(
+							currentStatusItem.resourceUri,
 							currentStatusItem.serverpath,
-							currentStatusItem.localpath,
 							currentStatusItem.changetype,
 							currentStatusItem.workspace,
 							currentStatusItem.changeset
@@ -65,9 +79,10 @@ export class TFSRepository implements QuickDiffProvider {
 				
 				if(path) {
 					let uri = Uri.file(path);
-					let relative = workspace.asRelativePath(uri);
-					currentStatusItem.localpath = relative;
+					let relative = workspace.asRelativePath(uri).replace('\\', '/');
+					currentStatusItem.resourceUri = uri;
 
+					// if the path is like "C:\something" we know it's not in the workspace
 					if(relative.match(/^\w\:/)) {
 						currentStatusItem.inworkspace = false;
 					} else {
@@ -97,8 +112,8 @@ export class TFSRepository implements QuickDiffProvider {
 
 		if(currentStatusItem !== null && currentStatusItem.inworkspace) {
 			statusItems.push(new TFSStatusItem(
+				currentStatusItem.resourceUri,
 				currentStatusItem.serverpath,
-				currentStatusItem.localpath,
 				currentStatusItem.changetype,
 				currentStatusItem.workspace,
 				currentStatusItem.changeset

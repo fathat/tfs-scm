@@ -6,6 +6,8 @@ import { TFSDocumentContentProvider } from './tfsDocumentContentProvider';
 import { WorkspaceFolder } from 'vscode';
 import { pathToFileURL } from 'url';
 import { emitKeypressEvents } from 'readline';
+import * as tfsUtil from './tfsUtil';
+import * as fs from 'fs';
 
 const SOURCE_CONTROL_OPEN_COMMAND = 'extension.source-control.open';
 
@@ -14,6 +16,18 @@ let scmMap : Map<vscode.Uri, TFSSourceControl> = new Map<vscode.Uri, TFSSourceCo
 export function activate(context: vscode.ExtensionContext) {
 
 	console.log('TFS SCM is now active');
+
+	vscode.workspace.onWillSaveTextDocument((e: vscode.TextDocumentWillSaveEvent) => {
+		if(e.document.isDirty && !e.document.isUntitled) {
+			e.waitUntil(new Promise((resolve, reject) => {
+				if(!tfsUtil.isWritable(e.document.uri.fsPath)) {
+					commands.checkout(e.document.uri)
+							.then(() => resolve())
+							.catch((err) => reject(err));
+				}
+			}));
+		}
+	});
 
 	if(vscode.workspace.workspaceFolders) {
 		for(let folder of vscode.workspace.workspaceFolders) {
@@ -27,7 +41,6 @@ export function activate(context: vscode.ExtensionContext) {
 	}
 
 	let documentContentProvider = new TFSDocumentContentProvider();
-	
 	context.subscriptions.push(vscode.workspace.registerTextDocumentContentProvider('tfs', documentContentProvider));
 	
 	context.subscriptions.push(vscode.commands.registerCommand('tfs-scm.info', () => {
@@ -43,6 +56,11 @@ export function activate(context: vscode.ExtensionContext) {
 	context.subscriptions.push(vscode.commands.registerCommand('tfs-scm.checkout', commands.checkout));
 	context.subscriptions.push(vscode.commands.registerCommand('tfs-scm.undo', commands.undo));
 	context.subscriptions.push(vscode.commands.registerCommand('tfs-scm.openInBrowser', commands.openInBrowser));
+	context.subscriptions.push(vscode.commands.registerCommand('tfs-scm.refresh', () => {
+		for(let [key, scm] of scmMap) {
+			scm.update();
+		}
+	}));
 	
 }
 

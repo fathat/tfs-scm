@@ -45,12 +45,17 @@
 		"commands": [
 			{
 				"command": "tfs-scm.info",
-				"title": "TFS: Info",
+				"title": "Info",
+				"category": "TFS"
+			},
+			{
+				"command": "tfs-scm.refresh",
+				"title": "Refresh Explorer",
 				"category": "TFS"
 			},
 			{
                 "command": "tfs-scm.add",
-                "title": "TFS: Add",
+                "title": "Add to Pending Changes",
 				"category": "TFS",
 				"icon": {
 					"dark": "icons/dark/add.svg",
@@ -59,12 +64,12 @@
             },
             {
                 "command": "tfs-scm.checkout",
-                "title": "TFS: Check Out for Edit",
+                "title": "Check Out for Edit",
                 "category": "TFS"
             },
             {
                 "command": "tfs-scm.rm",
-                "title": "TFS: Delete",
+                "title": "Delete from TFS",
 				"category": "TFS",
 				"icon": {
 					"dark": "icons/dark/remove.svg",
@@ -73,12 +78,12 @@
             },
             {
                 "command": "tfs-scm.undo",
-                "title": "TFS: Undo Pending Changes",
+                "title": "Undo Pending Changes",
                 "category": "TFS"
             },
             {
                 "command": "tfs-scm.openInBrowser",
-                "title": "TFS: Open in Browser",
+                "title": "Open in TFS Web UI",
                 "category": "TFS"
             }
 		],
@@ -98,6 +103,9 @@
 				},
 				{
 					"command": "tfs-scm.openInBrowser"
+				},
+				{
+					"command": "tfs-scm.refresh"
 				}
 			],
 			"editor/title/context": [
