@@ -1,13 +1,6 @@
 import * as vscode from 'vscode';
-import * as srcControl from './tfsSourceControl';
 import * as commands from './tfsCommands';
-import { TFSSourceControl } from './tfsSourceControl';
-import { TFSDocumentContentProvider } from './tfsDocumentContentProvider';
-import { WorkspaceFolder } from 'vscode';
-import { pathToFileURL } from 'url';
-import { emitKeypressEvents } from 'readline';
 import * as tfsUtil from './tfsUtil';
-import * as fs from 'fs';
 import { TFSSourceControlManager } from './tfsSourceControlManager';
 
 const SOURCE_CONTROL_OPEN_COMMAND = 'extension.source-control.open';

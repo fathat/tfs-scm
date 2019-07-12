@@ -16,6 +16,12 @@ export class TFSDocumentContentProvider implements TextDocumentContentProvider, 
 		if (token.isCancellationRequested) { return "Canceled"; }
 
 		return new Promise((resolve, reject) => {
+
+			//add a path called tfs:null that just resolves to empty
+			if(uri.fsPath === "null") {
+				resolve('');
+			}
+
 			tfcmd(["vc", "view", `${uri.fsPath}`, "/console"])
 				.then((spawnProcessResult) => {
 					resolve(spawnProcessResult.stdout);

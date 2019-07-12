@@ -8,12 +8,10 @@ export const TFS_SCHEME = 'tfs';
 const reServerPathWithChangeset = /^\$(.*)/;
 const reServerPath = /^\$(.*);(\S+)?/;
 const reLocalFilePath = /^  Local item : \[.*\] (.*)/;
-const reChangeType =    /^  Change(\s+): (.*)/;
-const reWorkspace =    /^  Workspace(\s+): (.*)/;
+const reChangeType =    /^  Change\s+: (.*)/;
+const reWorkspace =    /^  Workspace\s+: (.*)/;
 
-export class TFSStatusItemDecoration implements vscode.SourceControlResourceDecorations {
-	
-}
+export class TFSStatusItemDecoration implements vscode.SourceControlResourceDecorations { }
 
 export class TFSDiffWithServerCommand implements vscode.Command {
 	public title: string = "Open remote diff";	
@@ -40,7 +38,13 @@ export class TFSStatusItem implements SourceControlResourceState {
 		
 		this.command = new TFSDiffWithServerCommand([resourceUri]);
 		this.decorations = {
-			strikeThrough: changetype === 'deleted',
+			dark: {
+				iconPath: changetype === 'add' ? 'icons/dark/add.svg' : 'icons/dark/edit.svg'
+			},
+			light: {
+				iconPath: changetype === 'add' ? 'icons/light/add.svg' : 'icons/light/edit.svg'
+			},
+			strikeThrough: changetype === 'delete',
 			tooltip: serverpath
 		};
 	}
@@ -81,7 +85,6 @@ export class TFSRepository implements QuickDiffProvider {
 							currentStatusItem.changeset
 						));
 					} 
-
 					currentStatusItem = { serverpath, changeset, inworkspace:false };
 				}
 			} 
@@ -99,11 +102,9 @@ export class TFSRepository implements QuickDiffProvider {
 						currentStatusItem.inworkspace = false;
 					} else {
 						currentStatusItem.inworkspace = true;
-					}
-					
+					}		
 				}
 			}
-
 			
 			if (line.startsWith('  Change')) {
 				let [, changetype] = reChangeType.exec(line) || [null, null]; 			
@@ -117,7 +118,7 @@ export class TFSRepository implements QuickDiffProvider {
 				let [, workspace] = reWorkspace.exec(line) || [null, null]; 			
 				
 				if(workspace) {
-					currentStatusItem.changetype = workspace;
+					currentStatusItem.workspace = workspace;
 				}
 			}
 		}
