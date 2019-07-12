@@ -11,19 +11,19 @@ import * as fs from 'fs';
 import { TFSSourceControlManager } from './tfsSourceControlManager';
 
 const SOURCE_CONTROL_OPEN_COMMAND = 'extension.source-control.open';
+let scm: TFSSourceControlManager;
 
 export function activate(context: vscode.ExtensionContext) {
 
-	let scm = new TFSSourceControlManager(context);
-
-	console.log('TFS SCM is now active');
+	scm = new TFSSourceControlManager(context);
+	scm.out.appendLine('TFS SCM is now active');
 
 	// Auto checkout files if they're not writeable on save
 	vscode.workspace.onWillSaveTextDocument((e: vscode.TextDocumentWillSaveEvent) => {
 		if(e.document.isDirty && !e.document.isUntitled) {
 			e.waitUntil(new Promise((resolve, reject) => {
 				if(!tfsUtil.isWritable(e.document.uri.fsPath)) {
-					commands.checkout(e.document.uri)
+					commands.executeAction(scm, commands.checkout, scm, e.document.uri)
 							.then(() => resolve())
 							.catch((err) => reject(err));
 				}
@@ -50,5 +50,5 @@ export function activate(context: vscode.ExtensionContext) {
 
 // this method is called when your extension is deactivated
 export function deactivate() {
-	console.log("tfs scm deactivated");
+	scm.out.appendLine("TFS scm deactivated");
 }

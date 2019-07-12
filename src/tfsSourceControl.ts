@@ -38,11 +38,7 @@ export class TFSSourceControl implements vscode.Disposable {
         let excChanges: vscode.SourceControlResourceState[] = [];
 
         for(const item of items) {
-            if(item.changeset) {
-                incChanges.push(item);
-            } else {
-                excChanges.push(item);
-            }
+            excChanges.push(item);
         }
 
         this.includedChanges.resourceStates = incChanges;

@@ -13,8 +13,8 @@ export enum ActionModifiedWorkspace {
     Modified
 }
 
-export async function executeAction(scm: TFSSourceControlManager, fn: (...args: any[]) => Promise<ActionModifiedWorkspace>, ...args: any[]) {
-    const modifiedResult : ActionModifiedWorkspace = await fn(...args);
+export async function executeAction(scm: TFSSourceControlManager, fn: (scm: TFSSourceControlManager, ...args: any[]) => Promise<ActionModifiedWorkspace>, ...args: any[]) {
+    const modifiedResult : ActionModifiedWorkspace = await fn(scm, ...args);
 
     if(modifiedResult === ActionModifiedWorkspace.Modified) {
         scm.refresh();
@@ -34,7 +34,7 @@ export function getActionTargetUri(arg: any) : vscode.Uri {
     throw new Error("Unrecognized target " + arg);
 }
 
-export async function add(arg: any) {
+export async function add(scm: TFSSourceControlManager, arg: any) {
     try {
         const uri = getActionTargetUri(arg);
         const workspaceFolder = findWorkspaceRoot(uri);
@@ -48,7 +48,7 @@ export async function add(arg: any) {
             cmdArgs.push('/recursive');
         }
 
-        const result = await tfsCmd.tfcmd(cmdArgs, workspaceFolder.uri.fsPath);
+        const result = await scm.cmd(cmdArgs, workspaceFolder.uri.fsPath);
         vscode.window.setStatusBarMessage(`TFS: ${uri.fsPath} successfully added to version control.`);
         return ActionModifiedWorkspace.Modified;
     } catch (err) {
@@ -57,7 +57,7 @@ export async function add(arg: any) {
     }
 }
 
-export async function get(arg: any) {
+export async function get(scm: TFSSourceControlManager, arg: any) {
     try {
         const uri = getActionTargetUri(arg);
         const workspaceFolder = findWorkspaceRoot(uri);
@@ -72,7 +72,7 @@ export async function get(arg: any) {
         }
 
         vscode.window.setStatusBarMessage("TFS: Retrieving...");
-        const result = await tfsCmd.tfcmd(cmdArgs, workspaceFolder.uri.fsPath);
+        const result = await scm.cmd(cmdArgs, workspaceFolder.uri.fsPath);
         vscode.window.setStatusBarMessage(`TFS: ${uri.fsPath} successfully retrieved.`);
         return ActionModifiedWorkspace.Modified;
     } catch (err) {
@@ -81,10 +81,10 @@ export async function get(arg: any) {
     }
 }
 
-export async function checkout(arg: any) {
+export async function checkout(scm: TFSSourceControlManager, arg: any) {
     try {
         const uri = getActionTargetUri(arg);    
-        const result = await tfsCmd.tfcmd(['checkout', uri.fsPath, '/recursive']);
+        const result = await scm.cmd(['checkout', uri.fsPath, '/recursive']);
         vscode.window.setStatusBarMessage(`TFS: ${uri.fsPath} successfully checked out for editing.`);
         return ActionModifiedWorkspace.Modified;
     } catch (err) {
@@ -93,10 +93,10 @@ export async function checkout(arg: any) {
     }
 }
 
-export async function rm(arg: any) {
+export async function rm(scm: TFSSourceControlManager, arg: any) {
     try {
         const uri = getActionTargetUri(arg);    
-        const result = await tfsCmd.tfcmd(['checkout', uri.fsPath, '/recursive']);
+        const result = await scm.cmd(['checkout', uri.fsPath, '/recursive']);
         vscode.window.setStatusBarMessage(`TFS: ${uri.fsPath} successfully deleted from version control.`);
         return ActionModifiedWorkspace.Modified;
     } catch (err) {
@@ -105,10 +105,10 @@ export async function rm(arg: any) {
     }
 }
 
-export async function undo(arg: any) {
+export async function undo(scm: TFSSourceControlManager, arg: any) {
     try {
         const uri = getActionTargetUri(arg);    
-        const result = await tfsCmd.tfcmd(['undo', uri.fsPath, '/recursive']);
+        const result = await scm.cmd(['undo', uri.fsPath, '/recursive']);
         vscode.window.setStatusBarMessage(`TFS: ${uri.fsPath} changes undone.`);
         return ActionModifiedWorkspace.Modified;
     } catch (err) {
@@ -117,7 +117,7 @@ export async function undo(arg: any) {
     }
 }
 
-export async function openInBrowser(arg: any) {
+export async function openInBrowser(scm: TFSSourceControlManager, arg: any) {
     console.log("openInBrowser");
     console.log(arg);
     return ActionModifiedWorkspace.Unmodified;
