@@ -25,11 +25,16 @@ export class TFSSourceControlManager {
         for (let folder of vscode.workspace.workspaceFolders) {
             this.out.appendLine(`Scanning ${folder.uri}`);
 
-            vscode.workspace.openTextDocument(folder.uri.path + '/tfsconf.json').then((confDoc: vscode.TextDocument) => {
-                this.out.appendLine(`Registering as SCM for ${folder.uri}`);
-                this.scmMap.set(folder.uri, new TFSSourceControl(context, folder));
-            },
-                (reason) => this.out.appendLine(`Workspace folder ${folder.uri} does not contain a tfsconf.json, skipping`));
+            vscode.workspace.openTextDocument(folder.uri.path + '/tfsconf.json').then(
+                //good
+                (confDoc: vscode.TextDocument) => {
+                    this.out.appendLine(`Registering as SCM for ${folder.uri}`);
+                    this.scmMap.set(folder.uri, new TFSSourceControl(context, folder));
+                },
+                //err
+                (reason) => {
+                    this.out.appendLine(`Workspace folder ${folder.uri} does not contain a tfsconf.json, skipping`)
+                });
         }
 
     }
