@@ -5,8 +5,23 @@ import { POINT_CONVERSION_COMPRESSED } from 'constants';
 import { Uri } from 'vscode';
 import * as path from 'path';
 import { lstatSync, fstat } from 'fs';
+import { findWorkspaceRoot } from './tfsUtil';
+import { TFSSourceControlManager } from './tfsSourceControlManager';
 
-function getActionTargetUri(arg: any) : vscode.Uri {
+export enum ActionModifiedWorkspace {
+    Unmodified,
+    Modified
+}
+
+export async function executeAction(scm: TFSSourceControlManager, fn: (...args: any[]) => Promise<ActionModifiedWorkspace>, ...args: any[]) {
+    const modifiedResult : ActionModifiedWorkspace = await fn(...args);
+
+    if(modifiedResult === ActionModifiedWorkspace.Modified) {
+        scm.refresh();
+    }
+}
+
+export function getActionTargetUri(arg: any) : vscode.Uri {
     if(typeof arg === 'object') {
         //TODO: more type checking
         return arg as vscode.Uri;
@@ -17,17 +32,6 @@ function getActionTargetUri(arg: any) : vscode.Uri {
         }
     }
     throw new Error("Unrecognized target " + arg);
-}
-
-function findWorkspaceRoot(uri: Uri) {
-    if(vscode.workspace.workspaceFolders) {
-        for(const workspaceFolder of vscode.workspace.workspaceFolders) {
-            if(uri.path.startsWith(workspaceFolder.uri.path)) {
-                return workspaceFolder;
-            }
-        }
-    }
-    throw new Error("Could not find root!");
 }
 
 export async function add(arg: any) {
@@ -46,8 +50,10 @@ export async function add(arg: any) {
 
         const result = await tfsCmd.tfcmd(cmdArgs, workspaceFolder.uri.fsPath);
         vscode.window.setStatusBarMessage(`TFS: ${uri.fsPath} successfully added to version control.`);
+        return ActionModifiedWorkspace.Modified;
     } catch (err) {
         vscode.window.showErrorMessage(err.message);
+        return ActionModifiedWorkspace.Unmodified;
     }
 }
 
@@ -68,8 +74,10 @@ export async function get(arg: any) {
         vscode.window.setStatusBarMessage("TFS: Retrieving...");
         const result = await tfsCmd.tfcmd(cmdArgs, workspaceFolder.uri.fsPath);
         vscode.window.setStatusBarMessage(`TFS: ${uri.fsPath} successfully retrieved.`);
+        return ActionModifiedWorkspace.Modified;
     } catch (err) {
         vscode.window.showErrorMessage(err.message);
+        return ActionModifiedWorkspace.Unmodified;
     }
 }
 
@@ -78,8 +86,10 @@ export async function checkout(arg: any) {
         const uri = getActionTargetUri(arg);    
         const result = await tfsCmd.tfcmd(['checkout', uri.fsPath, '/recursive']);
         vscode.window.setStatusBarMessage(`TFS: ${uri.fsPath} successfully checked out for editing.`);
+        return ActionModifiedWorkspace.Modified;
     } catch (err) {
         vscode.window.showErrorMessage(err.message);
+        return ActionModifiedWorkspace.Unmodified;
     }
 }
 
@@ -88,8 +98,10 @@ export async function rm(arg: any) {
         const uri = getActionTargetUri(arg);    
         const result = await tfsCmd.tfcmd(['checkout', uri.fsPath, '/recursive']);
         vscode.window.setStatusBarMessage(`TFS: ${uri.fsPath} successfully deleted from version control.`);
+        return ActionModifiedWorkspace.Modified;
     } catch (err) {
         vscode.window.showErrorMessage(err.message);
+        return ActionModifiedWorkspace.Unmodified;
     }
 }
 
@@ -98,12 +110,15 @@ export async function undo(arg: any) {
         const uri = getActionTargetUri(arg);    
         const result = await tfsCmd.tfcmd(['undo', uri.fsPath, '/recursive']);
         vscode.window.setStatusBarMessage(`TFS: ${uri.fsPath} changes undone.`);
+        return ActionModifiedWorkspace.Modified;
     } catch (err) {
         vscode.window.showErrorMessage(err.message);
+        return ActionModifiedWorkspace.Unmodified;
     }
 }
 
 export async function openInBrowser(arg: any) {
     console.log("openInBrowser");
     console.log(arg);
+    return ActionModifiedWorkspace.Unmodified;
 }

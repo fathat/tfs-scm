@@ -8,15 +8,17 @@ import { pathToFileURL } from 'url';
 import { emitKeypressEvents } from 'readline';
 import * as tfsUtil from './tfsUtil';
 import * as fs from 'fs';
+import { TFSSourceControlManager } from './tfsSourceControlManager';
 
 const SOURCE_CONTROL_OPEN_COMMAND = 'extension.source-control.open';
 
-let scmMap : Map<vscode.Uri, TFSSourceControl> = new Map<vscode.Uri, TFSSourceControl>();
-
 export function activate(context: vscode.ExtensionContext) {
+
+	let scm = new TFSSourceControlManager(context);
 
 	console.log('TFS SCM is now active');
 
+	// Auto checkout files if they're not writeable on save
 	vscode.workspace.onWillSaveTextDocument((e: vscode.TextDocumentWillSaveEvent) => {
 		if(e.document.isDirty && !e.document.isUntitled) {
 			e.waitUntil(new Promise((resolve, reject) => {
@@ -29,39 +31,20 @@ export function activate(context: vscode.ExtensionContext) {
 		}
 	});
 
-	if(vscode.workspace.workspaceFolders) {
-		for(let folder of vscode.workspace.workspaceFolders) {
-			console.log(folder.uri);
-
-			vscode.workspace.openTextDocument(folder.uri.path + '/tfsconf.json').then((confDoc : vscode.TextDocument) => {
-				scmMap.set(folder.uri, new TFSSourceControl(context, folder));
-			}, 
-			(reason) => console.error(reason));
-		}
-	}
-
 	let documentContentProvider = new TFSDocumentContentProvider();
 	context.subscriptions.push(vscode.workspace.registerTextDocumentContentProvider('tfs', documentContentProvider));
 	
 	context.subscriptions.push(vscode.commands.registerCommand('tfs-scm.info', () => {
 		vscode.window.showInformationMessage('TFS-SCM Running!');
-		
-		for(let [key, scm] of scmMap) {
-			
-		}
 	}));
 
-	context.subscriptions.push(vscode.commands.registerCommand('tfs-scm.get', commands.get));
-	context.subscriptions.push(vscode.commands.registerCommand('tfs-scm.add', commands.add));
-	context.subscriptions.push(vscode.commands.registerCommand('tfs-scm.rm', commands.rm));
-	context.subscriptions.push(vscode.commands.registerCommand('tfs-scm.checkout', commands.checkout));
-	context.subscriptions.push(vscode.commands.registerCommand('tfs-scm.undo', commands.undo));
-	context.subscriptions.push(vscode.commands.registerCommand('tfs-scm.openInBrowser', commands.openInBrowser));
-	context.subscriptions.push(vscode.commands.registerCommand('tfs-scm.refresh', () => {
-		for(let [key, scm] of scmMap) {
-			scm.update();
-		}
-	}));
+	context.subscriptions.push(vscode.commands.registerCommand('tfs-scm.get', (...args: any) => commands.executeAction(scm, commands.get, ...args)));
+	context.subscriptions.push(vscode.commands.registerCommand('tfs-scm.add', (...args: any) => commands.executeAction(scm, commands.add, ...args)));
+	context.subscriptions.push(vscode.commands.registerCommand('tfs-scm.rm', (...args: any) => commands.executeAction(scm, commands.rm, ...args)));
+	context.subscriptions.push(vscode.commands.registerCommand('tfs-scm.checkout', (...args: any) => commands.executeAction(scm, commands.checkout, ...args)));
+	context.subscriptions.push(vscode.commands.registerCommand('tfs-scm.undo', (...args: any) => commands.executeAction(scm, commands.undo, ...args)));
+	context.subscriptions.push(vscode.commands.registerCommand('tfs-scm.openInBrowser', (...args: any) => commands.executeAction(scm, commands.openInBrowser, ...args)));
+	context.subscriptions.push(vscode.commands.registerCommand('tfs-scm.refresh', (...args: any) => {scm.refresh();}));
 	
 }
 
