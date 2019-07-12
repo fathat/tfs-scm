@@ -4,6 +4,7 @@ import * as tfsCmd from './tfsCmd';
 import { POINT_CONVERSION_COMPRESSED } from 'constants';
 import { Uri } from 'vscode';
 import * as path from 'path';
+import { lstatSync, fstat } from 'fs';
 
 function getActionTargetUri(arg: any) : vscode.Uri {
     if(typeof arg === 'object') {
@@ -34,8 +35,39 @@ export async function add(arg: any) {
         const uri = getActionTargetUri(arg);
         const workspaceFolder = findWorkspaceRoot(uri);
         const relative = path.relative(workspaceFolder.uri.fsPath, uri.fsPath);
-        const result = await tfsCmd.tfcmd(['add', relative], workspaceFolder.uri.fsPath);
+
+        //check if path exists
+        const stats = lstatSync(uri.fsPath);
+        let cmdArgs = ['add', relative];
+
+        if (stats.isDirectory()) {
+            cmdArgs.push('/recursive');
+        }
+
+        const result = await tfsCmd.tfcmd(cmdArgs, workspaceFolder.uri.fsPath);
         vscode.window.setStatusBarMessage(`TFS: ${uri.fsPath} successfully added to version control.`);
+    } catch (err) {
+        vscode.window.showErrorMessage(err.message);
+    }
+}
+
+export async function get(arg: any) {
+    try {
+        const uri = getActionTargetUri(arg);
+        const workspaceFolder = findWorkspaceRoot(uri);
+        const relative = path.relative(workspaceFolder.uri.fsPath, uri.fsPath);
+
+        //check if path exists
+        const stats = lstatSync(uri.fsPath);
+        let cmdArgs = ['get', relative];
+
+        if (stats.isDirectory()) {
+            cmdArgs.push('/recursive');
+        }
+
+        vscode.window.setStatusBarMessage("TFS: Retrieving...");
+        const result = await tfsCmd.tfcmd(cmdArgs, workspaceFolder.uri.fsPath);
+        vscode.window.setStatusBarMessage(`TFS: ${uri.fsPath} successfully retrieved.`);
     } catch (err) {
         vscode.window.showErrorMessage(err.message);
     }

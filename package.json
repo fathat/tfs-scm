@@ -54,6 +54,11 @@
 				"category": "TFS"
 			},
 			{
+				"command": "tfs-scm.get",
+				"title": "Get Latest",
+				"category": "TFS"
+			},
+			{
                 "command": "tfs-scm.add",
                 "title": "Add to Pending Changes",
 				"category": "TFS",
@@ -90,6 +95,9 @@
 		"menus": {
 			"explorer/context": [
 				{
+					"command": "tfs-scm.get"
+				},
+				{
 					"command": "tfs-scm.add"
 				},
 				{
@@ -109,6 +117,9 @@
 				}
 			],
 			"editor/title/context": [
+				{
+					"command": "tfs-scm.get"
+				},
 				{
 					"command": "tfs-scm.add"
 				},

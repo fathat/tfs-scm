@@ -51,6 +51,7 @@ export function activate(context: vscode.ExtensionContext) {
 		}
 	}));
 
+	context.subscriptions.push(vscode.commands.registerCommand('tfs-scm.get', commands.get));
 	context.subscriptions.push(vscode.commands.registerCommand('tfs-scm.add', commands.add));
 	context.subscriptions.push(vscode.commands.registerCommand('tfs-scm.rm', commands.rm));
 	context.subscriptions.push(vscode.commands.registerCommand('tfs-scm.checkout', commands.checkout));
