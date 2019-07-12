@@ -15,6 +15,17 @@ export class TFSStatusItemDecoration implements vscode.SourceControlResourceDeco
 	
 }
 
+export class TFSDiffWithServerCommand implements vscode.Command {
+	public title: string = "Open remote diff";	
+	public command: string = "tfs-scm.openRemoteDiff";
+	public tooltip?: string  = "Open remote diff";
+	public arguments?: any[] | undefined;
+
+	constructor(args: any[]) {
+		this.arguments = args;
+	}
+}
+
 export class TFSStatusItem implements SourceControlResourceState {
 	
 	public command?: vscode.Command | undefined;
@@ -27,6 +38,7 @@ export class TFSStatusItem implements SourceControlResourceState {
 		public workspace: string,
 		public changeset: string) {
 		
+		this.command = new TFSDiffWithServerCommand([resourceUri]);
 		this.decorations = {
 			strikeThrough: changetype === 'deleted',
 			tooltip: serverpath

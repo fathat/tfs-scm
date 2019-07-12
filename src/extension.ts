@@ -30,14 +30,13 @@ export function activate(context: vscode.ExtensionContext) {
 			}));
 		}
 	});
-
-	let documentContentProvider = new TFSDocumentContentProvider();
-	context.subscriptions.push(vscode.workspace.registerTextDocumentContentProvider('tfs', documentContentProvider));
 	
 	context.subscriptions.push(vscode.commands.registerCommand('tfs-scm.info', () => {
 		vscode.window.showInformationMessage('TFS-SCM Running!');
 	}));
 
+	context.subscriptions.push(vscode.commands.registerCommand('tfs-scm.open', (...args: any) => commands.executeAction(scm, commands.open, ...args)));
+	context.subscriptions.push(vscode.commands.registerCommand('tfs-scm.openRemoteDiff', (...args: any) => commands.executeAction(scm, commands.openRemoteDiff, ...args)));
 	context.subscriptions.push(vscode.commands.registerCommand('tfs-scm.get', (...args: any) => commands.executeAction(scm, commands.get, ...args)));
 	context.subscriptions.push(vscode.commands.registerCommand('tfs-scm.add', (...args: any) => commands.executeAction(scm, commands.add, ...args)));
 	context.subscriptions.push(vscode.commands.registerCommand('tfs-scm.rm', (...args: any) => commands.executeAction(scm, commands.rm, ...args)));

@@ -1,14 +1,20 @@
 import { TFSSourceControl } from "./tfsSourceControl";
 import * as vscode from 'vscode';
 import * as cpp from "child-process-promise";
+import { TFSDocumentContentProvider } from "./tfsDocumentContentProvider";
 
 export class TFSSourceControlManager {
 
     scmMap : Map<vscode.Uri, TFSSourceControl> = new Map<vscode.Uri, TFSSourceControl>();
     
     public out : vscode.OutputChannel;
+    public documentContentProvider: TFSDocumentContentProvider;
     
     constructor (private context: vscode.ExtensionContext) {
+
+        this.documentContentProvider = new TFSDocumentContentProvider();
+    
+        context.subscriptions.push(vscode.workspace.registerTextDocumentContentProvider('tfs', this.documentContentProvider));
         
         this.out = vscode.window.createOutputChannel('TFS');
 

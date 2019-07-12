@@ -141,7 +141,25 @@
 					"dark": "icons/dark/check-circle.svg",
 					"light": "icons/light/check-circle.svg"
 				}
-            },
+			},
+			{
+                "command": "tfs-scm.open",
+                "title": "Open",
+				"category": "TFS",
+				"icon": {
+					"dark": "icons/dark/browse.svg",
+					"light": "icons/light/browse.svg"
+				}
+			},
+			{
+                "command": "tfs-scm.openRemoteDiff",
+                "title": "Diff with Server",
+				"category": "TFS",
+				"icon": {
+					"dark": "icons/dark/compare-arrows.svg",
+					"light": "icons/light/compare-arrows.svg"
+				}
+			},
 			{
                 "command": "tfs-scm.include",
                 "title": "Include",
@@ -278,6 +296,16 @@
 				}
 			],
 			"scm/resourceState/context": [
+				{
+					"command": "tfs-scm.openRemoteDiff",
+					"group": "inline",
+					"when": "scmProvider == tfs"
+				},
+				{
+					"command": "tfs-scm.openRemoteDiff",
+					"group": "navigation",
+					"when": "scmProvider == tfs"
+				},
 				{
 					"command": "tfs-scm.include",
 					"group": "inline",

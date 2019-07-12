@@ -16,11 +16,13 @@ export class TFSDocumentContentProvider implements TextDocumentContentProvider, 
 		if (token.isCancellationRequested) { return "Canceled"; }
 
 		return new Promise((resolve, reject) => {
-			tfcmd(["vc", "view", `"${uri.fsPath}"`, "/console"])
+			tfcmd(["vc", "view", `${uri.fsPath}`, "/console"])
 				.then((spawnProcessResult) => {
 					resolve(spawnProcessResult.stdout);
 				})
-				.catch(err => reject(err));
+				.catch(err => {
+					reject(err);
+				});
 		});
 	}
 

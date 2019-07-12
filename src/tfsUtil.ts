@@ -5,7 +5,7 @@ import * as vscode from 'vscode';
 export function findWorkspaceRoot(uri: vscode.Uri) {
     if(vscode.workspace.workspaceFolders) {
         for(const workspaceFolder of vscode.workspace.workspaceFolders) {
-            if(uri.path.startsWith(workspaceFolder.uri.path)) {
+            if(uri.path.toLowerCase().startsWith(workspaceFolder.uri.path.toLowerCase())) {
                 return workspaceFolder;
             }
         }
