@@ -13,9 +13,9 @@ export enum ActionModifiedWorkspace {
 }
 
 export async function executeAction(scm: TFSSourceControlManager, fn: (scm: TFSSourceControlManager, ...args: any[]) => Promise<ActionModifiedWorkspace>, ...args: any[]) {
-    const modifiedResult : ActionModifiedWorkspace = await fn(scm, ...args);
+    const modifiedResult: ActionModifiedWorkspace = await fn(scm, ...args);
 
-    if(modifiedResult === ActionModifiedWorkspace.Modified) {
+    if (modifiedResult === ActionModifiedWorkspace.Modified) {
         scm.refresh();
     }
 }
@@ -26,18 +26,18 @@ class WorkspaceUriInfo {
         public relativePath: string,
         public workspaceFolder: vscode.WorkspaceFolder,
         public exists: boolean,
-        public isDirectory: boolean ) { }
+        public isDirectory: boolean) { }
 }
 
 function getWorkspaceUriInfo(uri: Uri) {
     const workspaceFolder = findWorkspaceRoot(uri);
     const relative = path.relative(workspaceFolder.uri.fsPath, uri.fsPath);
-    
+
     //check if path is directory
     let exists = existsSync(uri.fsPath);
     let isDir = false;
 
-    if(exists) {
+    if (exists) {
         const stats = lstatSync(uri.fsPath);
         isDir = stats.isDirectory();
     }
@@ -47,16 +47,16 @@ function getWorkspaceUriInfo(uri: Uri) {
     );
 }
 
-export function getActionTargetUri(arg: any) : vscode.Uri {
-    if(typeof arg === 'object') {
-        if(arg.resourceUri) {
+export function getActionTargetUri(arg: any): vscode.Uri {
+    if (typeof arg === 'object') {
+        if (arg.resourceUri) {
             return arg.resourceUri as vscode.Uri;
         }
 
         return arg as vscode.Uri;
-    } else if(typeof arg === 'undefined') {
+    } else if (typeof arg === 'undefined') {
         const doc = tfsUtil.getActiveDocument();
-        if(doc) {
+        if (doc) {
             return doc.uri;
         }
     }
@@ -82,7 +82,7 @@ export async function add(scm: TFSSourceControlManager, arg: any) {
 
 export async function get(scm: TFSSourceControlManager, arg: any) {
     try {
-        
+
         const uri = getActionTargetUri(arg);
         const workspacePathInfo = getWorkspaceUriInfo(uri);
         let cmdArgs = ['get', workspacePathInfo.relativePath];
@@ -104,7 +104,7 @@ export async function get(scm: TFSSourceControlManager, arg: any) {
 export async function open(scm: TFSSourceControlManager, arg: any) {
     try {
         const local = getActionTargetUri(arg);
-        const remote = Uri.parse(`tfs:${local.fsPath.replace('\\', '/')}`);       
+        const remote = Uri.parse(`tfs:${local.fsPath.replace('\\', '/')}`);
         try {
             vscode.window.showTextDocument(await vscode.workspace.openTextDocument(remote));
         } catch (err) {
@@ -112,7 +112,7 @@ export async function open(scm: TFSSourceControlManager, arg: any) {
         }
     } catch (err) {
         vscode.window.showErrorMessage(err.message);
-        
+
     }
     return ActionModifiedWorkspace.Unmodified;
 }
@@ -120,16 +120,16 @@ export async function open(scm: TFSSourceControlManager, arg: any) {
 export async function openRemoteDiff(scm: TFSSourceControlManager, arg: any) {
     try {
         let local = getActionTargetUri(arg);
-        const remote = Uri.parse(`tfs:${local.fsPath.replace('\\', '/')}`);       
+        const remote = Uri.parse(`tfs:${local.fsPath.replace('\\', '/')}`);
         //vscode.window.showTextDocument();
         const opts: vscode.TextDocumentShowOptions = {
-			preserveFocus: false,
-			preview: false,
-			viewColumn: vscode.ViewColumn.Active
+            preserveFocus: false,
+            preview: false,
+            viewColumn: vscode.ViewColumn.Active
         };
 
         try {
-            if(!existsSync(local.fsPath)) {
+            if (!existsSync(local.fsPath)) {
                 local = Uri.parse(`tfs:null`);
             }
 
@@ -138,10 +138,10 @@ export async function openRemoteDiff(scm: TFSSourceControlManager, arg: any) {
         } catch (err) {
             await commands.executeCommand<void>('vscode.open', local, undefined, opts);
         }
-        
+
     } catch (err) {
         vscode.window.showErrorMessage(err.message);
-        
+
     }
     return ActionModifiedWorkspace.Unmodified;
 }
@@ -149,13 +149,13 @@ export async function openRemoteDiff(scm: TFSSourceControlManager, arg: any) {
 
 export async function checkout(scm: TFSSourceControlManager, arg: any) {
     try {
-        const uri = getActionTargetUri(arg);    
+        const uri = getActionTargetUri(arg);
         const workspacePathInfo = getWorkspaceUriInfo(uri);
         let cmdArgs = ['checkout', workspacePathInfo.relativePath];
         if (workspacePathInfo.isDirectory) {
             cmdArgs.push('/recursive');
         }
-        
+
         const result = await scm.cmd(cmdArgs, workspacePathInfo.workspaceFolder.uri.fsPath);
         vscode.window.setStatusBarMessage(`TFS: ${uri.fsPath} successfully checked out for editing.`);
         return ActionModifiedWorkspace.Modified;
@@ -167,7 +167,7 @@ export async function checkout(scm: TFSSourceControlManager, arg: any) {
 
 export async function rm(scm: TFSSourceControlManager, arg: any) {
     try {
-        const uri = getActionTargetUri(arg);    
+        const uri = getActionTargetUri(arg);
         const workspacePathInfo = getWorkspaceUriInfo(uri);
         let cmdArgs = ['delete', workspacePathInfo.relativePath];
         if (workspacePathInfo.isDirectory) {

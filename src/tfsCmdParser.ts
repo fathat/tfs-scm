@@ -1,4 +1,3 @@
-import { Server } from "net";
 
 // converts something like "Local path" to "localPath"
 export function labelToKey(str: string) {

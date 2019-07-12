@@ -1,12 +1,11 @@
 import { tfcmd } from './tfsCmd';
 import { TextDocumentContentProvider, Disposable, Event, Uri, ProviderResult, CancellationToken, EventEmitter, WorkspaceFolder } from 'vscode';
-import * as path from 'path';
 
 export class TFSDocumentContentProvider implements TextDocumentContentProvider, Disposable {
 
 	private _onDidChange = new EventEmitter<Uri>();
 
-	constructor () { }
+	constructor() { }
 
 	get onDidChange(): Event<Uri> {
 		return this._onDidChange.event;
@@ -18,7 +17,7 @@ export class TFSDocumentContentProvider implements TextDocumentContentProvider, 
 		return new Promise((resolve, reject) => {
 
 			//add a path called tfs:null that just resolves to empty
-			if(uri.fsPath === "null") {
+			if (uri.fsPath === "null") {
 				resolve('');
 			}
 

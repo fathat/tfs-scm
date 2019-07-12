@@ -3,7 +3,6 @@ import * as commands from './tfsCommands';
 import * as tfsUtil from './tfsUtil';
 import { TFSSourceControlManager } from './tfsSourceControlManager';
 
-const SOURCE_CONTROL_OPEN_COMMAND = 'extension.source-control.open';
 let scm: TFSSourceControlManager;
 
 export function activate(context: vscode.ExtensionContext) {

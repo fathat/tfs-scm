@@ -3,9 +3,9 @@ import * as vscode from 'vscode';
 
 
 export function findWorkspaceRoot(uri: vscode.Uri) {
-    if(vscode.workspace.workspaceFolders) {
-        for(const workspaceFolder of vscode.workspace.workspaceFolders) {
-            if(uri.path.toLowerCase().startsWith(workspaceFolder.uri.path.toLowerCase())) {
+    if (vscode.workspace.workspaceFolders) {
+        for (const workspaceFolder of vscode.workspace.workspaceFolders) {
+            if (uri.path.toLowerCase().startsWith(workspaceFolder.uri.path.toLowerCase())) {
                 return workspaceFolder;
             }
         }
@@ -19,10 +19,10 @@ export const getActiveDocument = () => {
 };
 
 export const isWritable = (fileName: fs.PathLike) => {
-  try {
-    fs.accessSync(fileName, fs.constants.W_OK);
-    return true;
-  } catch(err) {
-    return false;
-  }
+    try {
+        fs.accessSync(fileName, fs.constants.W_OK);
+        return true;
+    } catch (err) {
+        return false;
+    }
 };
