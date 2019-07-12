@@ -16,7 +16,7 @@ export function activate(context: vscode.ExtensionContext) {
 		if(e.document.isDirty && !e.document.isUntitled) {
 			e.waitUntil(new Promise((resolve, reject) => {
 				if(!tfsUtil.isWritable(e.document.uri.fsPath)) {
-					commands.executeAction(scm, commands.checkout, scm, e.document.uri)
+					commands.executeAction(scm, (scm: TFSSourceControlManager) => commands.checkout(scm, e.document.uri))
 							.then(() => resolve())
 							.catch((err) => reject(err));
 				}
