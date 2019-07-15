@@ -2,13 +2,19 @@ import * as vscode from 'vscode';
 import * as commands from './tfsCommands';
 import * as tfsUtil from './tfsUtil';
 import { TFSSourceControlManager } from './tfsSourceControlManager';
+import * as tfsWorkspaceTree from './tfsWorkspaceTree';
 
 let scm: TFSSourceControlManager;
+let statusBarItem: vscode.StatusBarItem;
 
 export function activate(context: vscode.ExtensionContext) {
 
 	scm = new TFSSourceControlManager(context);
 	scm.out.appendLine('TFS SCM is now active');
+
+	const workspaceTreeProvider = new tfsWorkspaceTree.TFSWorkspaceTreeProvider();
+	vscode.window.registerTreeDataProvider('tfs-workspaces', workspaceTreeProvider);
+	
 
 	// Auto checkout files if they're not writeable on save
 	vscode.workspace.onWillSaveTextDocument((e: vscode.TextDocumentWillSaveEvent) => {
@@ -36,7 +42,12 @@ export function activate(context: vscode.ExtensionContext) {
 	context.subscriptions.push(vscode.commands.registerCommand('tfs-scm.undo', (...args: any) => commands.executeAction(scm, commands.undo, ...args)));
 	context.subscriptions.push(vscode.commands.registerCommand('tfs-scm.openInBrowser', (...args: any) => commands.executeAction(scm, commands.openInBrowser, ...args)));
 	context.subscriptions.push(vscode.commands.registerCommand('tfs-scm.refresh', (...args: any) => {scm.refresh();}));
-	
+
+	//setup status bar to show a link to the TFS workspace
+	statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 100);
+	statusBarItem.text = "TFS Workspace";
+	context.subscriptions.push(statusBarItem);
+	statusBarItem.show();
 }
 
 // this method is called when your extension is deactivated
