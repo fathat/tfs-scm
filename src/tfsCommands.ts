@@ -85,7 +85,8 @@ export async function get(scm: TFSSourceControlManager, arg: any) {
 
         const uri = getActionTargetUri(arg);
         const workspacePathInfo = getWorkspaceUriInfo(uri);
-        let cmdArgs = ['get', workspacePathInfo.relativePath];
+        const relativePath = workspacePathInfo.relativePath || '.';
+        let cmdArgs = ['get', relativePath];
         if (workspacePathInfo.isDirectory) {
             cmdArgs.push('/recursive');
         }
