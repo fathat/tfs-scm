@@ -2,6 +2,10 @@
 
 All notable changes to the "tfs-scm" extension will be documented in this file.
 
+## 0.0.6
+### Added
+* For pending changes, implement include-all and exclude-all, along with discard
+
 ## 0.0.5
 ### Changes
 * Fix some issues with package, icon sizing

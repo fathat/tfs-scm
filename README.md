@@ -43,6 +43,9 @@ This extension contributes the following settings:
 
 ## Release Notes
 
+### 0.0.6
+* For pending changes, implement include-all and exclude-all, along with discard
+
 ### 0.0.5
 * Icon sizing
 
