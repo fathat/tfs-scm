@@ -2,6 +2,10 @@
 
 All notable changes to the "tfs-scm" extension will be documented in this file.
 
+## 0.0.5
+### Changes
+* Fix some issues with package, icon sizing
+
 ## 0.0.4
 ### Added
 * Auto register as TFS SCM

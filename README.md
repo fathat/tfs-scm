@@ -43,6 +43,9 @@ This extension contributes the following settings:
 
 ## Release Notes
 
+### 0.0.5
+* Icon sizing
+
 ### 0.0.4
 * Auto register as TFS SCM
 

@@ -1,9 +1,15 @@
 {
 	"name": "tfs-scm",
 	"publisher": "qcs",
+    "author": {
+        "name": "Ian Overgard",
+        "email": "ian.overgard@gmail.com",
+        "url": "https://github.com/fathat"
+    },
 	"displayName": "tfs-scm",
 	"description": "TFS Source Control",
-	"version": "0.0.4",
+	"icon": "icons/icon.png",
+	"version": "0.0.5",
 	"engines": {
 		"vscode": "^1.36.0"
 	},
