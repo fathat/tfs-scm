@@ -3,6 +3,7 @@ import * as vscode from 'vscode';
 import * as cpp from "child-process-promise";
 import { TFSDocumentContentProvider } from "./tfsDocumentContentProvider";
 import { TFSLocalDatabase, StateChange } from "./tfsLocalDatabase";
+import { inTFS } from "./tfsWorkspaceInfo";
 
 export class TFSSourceControlManager {
 
@@ -26,18 +27,16 @@ export class TFSSourceControlManager {
         }
 
         for (let folder of vscode.workspace.workspaceFolders) {
-            this.out.appendLine(`Scanning ${folder.uri}`);
-
-            vscode.workspace.openTextDocument(folder.uri.path + '/tfsconf.json').then(
-                //good
-                (confDoc: vscode.TextDocument) => {
+            this.out.appendLine(`Scanning!!~! ${folder.uri}`);
+            
+            inTFS(folder).then((isInFolder) => {
+                if (isInFolder) {
                     this.out.appendLine(`Registering as SCM for ${folder.uri}`);
                     this.scmMap.set(folder.uri, new TFSWorkspace(context, folder, this.database));
-                },
-                //err
-                (reason) => {
-                    this.out.appendLine(`Workspace folder ${folder.uri} does not contain a tfsconf.json, skipping`);
-                });
+                } else {
+                    this.out.appendLine(`Workspace folder ${folder.uri} does not match a TFS mapping, skipping`);
+                }
+            });
         }
 
     }
