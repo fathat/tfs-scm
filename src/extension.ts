@@ -50,6 +50,9 @@ export function activate(context: vscode.ExtensionContext) {
 	
 		context.subscriptions.push(vscode.commands.registerCommand('tfs-scm.include', (...args: any) => commands.executeAction(scm, commands.include, ...args)));
 		context.subscriptions.push(vscode.commands.registerCommand('tfs-scm.exclude', (...args: any) => commands.executeAction(scm, commands.exclude, ...args)));
+		
+		context.subscriptions.push(vscode.commands.registerCommand('tfs-scm.include-all', (...args: any) => commands.executeAction(scm, commands.includeAll, ...args)));
+		context.subscriptions.push(vscode.commands.registerCommand('tfs-scm.exclude-all', (...args: any) => commands.executeAction(scm, commands.excludeAll, ...args)));
 	
 		//setup status bar to show a link to the TFS workspace
 		statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 100);

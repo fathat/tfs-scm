@@ -59,6 +59,18 @@ export class TFSSourceControlManager {
         }
     }
 
+    includeAll(): void {
+        for (const [_, sc] of this.scmMap) {
+            sc.includeAll();
+        }
+    }
+
+    excludeAll(): void {
+        for (const [_, sc] of this.scmMap) {
+            sc.excludeAll();
+        }
+    }
+
     async cmd(args: string[], cwd?: string) {
         const tfPath = vscode.workspace.getConfiguration("tfsSCM", null).get<string>("tfsPath");
 

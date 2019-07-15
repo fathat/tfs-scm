@@ -207,7 +207,7 @@ export async function include(scm: TFSSourceControlManager, arg: any) {
     try {
         const uri = getActionTargetUri(arg);
         scm.includeFileInChangeset(uri.fsPath);        
-        return ActionModifiedWorkspace.Modified;
+        return ActionModifiedWorkspace.Unmodified;
     } catch (err) {
         vscode.window.showErrorMessage(err.message);
         return ActionModifiedWorkspace.Unmodified;
@@ -218,7 +218,27 @@ export async function exclude(scm: TFSSourceControlManager, arg: any) {
     try {
         const uri = getActionTargetUri(arg);
         scm.excludeFileFromChangeset(uri.fsPath);
-        return ActionModifiedWorkspace.Modified;
+        return ActionModifiedWorkspace.Unmodified;
+    } catch (err) {
+        vscode.window.showErrorMessage(err.message);
+        return ActionModifiedWorkspace.Unmodified;
+    }
+}
+
+export async function includeAll(scm: TFSSourceControlManager, arg: any) {
+    try {
+        scm.includeAll();
+        return ActionModifiedWorkspace.Unmodified;
+    } catch (err) {
+        vscode.window.showErrorMessage(err.message);
+        return ActionModifiedWorkspace.Unmodified;
+    }
+}
+
+export async function excludeAll(scm: TFSSourceControlManager, arg: any) {
+    try {
+        scm.excludeAll();
+        return ActionModifiedWorkspace.Unmodified;
     } catch (err) {
         vscode.window.showErrorMessage(err.message);
         return ActionModifiedWorkspace.Unmodified;

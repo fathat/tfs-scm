@@ -9,7 +9,7 @@
 	"displayName": "tfs-scm",
 	"description": "TFS Source Control",
 	"icon": "icons/icon.png",
-	"version": "0.0.5",
+	"version": "0.0.6",
 	"engines": {
 		"vscode": "^1.36.0"
 	},
@@ -294,11 +294,6 @@
 					"command": "tfs-scm.exclude-all",
 					"group": "inline",
 					"when": "scmProvider == tfs && scmResourceGroup == tfs-included-changes"
-				},
-				{
-					"command": "tfs-scm.undo-all",
-					"group": "inline",
-					"when": "scmProvider == tfs"
 				}
 			],
 			"scm/resourceState/context": [
