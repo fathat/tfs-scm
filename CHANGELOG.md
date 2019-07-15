@@ -14,7 +14,7 @@ All notable changes to the "tfs-scm" extension will be documented in this file.
 ### Added
 * Auto register as TFS SCM
 
-## 0. 0. 3
+## 0.0.3
 ### Added
 - Added a workspace view
 ### Changed
