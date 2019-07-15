@@ -203,6 +203,28 @@ export async function undo(scm: TFSSourceControlManager, arg: any) {
     }
 }
 
+export async function include(scm: TFSSourceControlManager, arg: any) {
+    try {
+        const uri = getActionTargetUri(arg);
+        scm.includeFileInChangeset(uri.fsPath);        
+        return ActionModifiedWorkspace.Modified;
+    } catch (err) {
+        vscode.window.showErrorMessage(err.message);
+        return ActionModifiedWorkspace.Unmodified;
+    }
+}
+
+export async function exclude(scm: TFSSourceControlManager, arg: any) {
+    try {
+        const uri = getActionTargetUri(arg);
+        scm.excludeFileFromChangeset(uri.fsPath);
+        return ActionModifiedWorkspace.Modified;
+    } catch (err) {
+        vscode.window.showErrorMessage(err.message);
+        return ActionModifiedWorkspace.Unmodified;
+    }
+}
+
 export async function openInBrowser(scm: TFSSourceControlManager, arg: any) {
     console.log("openInBrowser");
     tfsOpenInBrowser.openInBrowser(scm, arg);

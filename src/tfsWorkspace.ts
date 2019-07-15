@@ -1,15 +1,16 @@
 import * as vscode from 'vscode';
 import { TFSRepository, TFSStatusItem } from './tfsRepository';
 import { Uri } from 'vscode';
+import { TFSLocalDatabase } from './tfsLocalDatabase';
 
-export class TFSSourceControl implements vscode.Disposable {
+export class TFSWorkspace implements vscode.Disposable {
     
     private _scm: vscode.SourceControl;
     private includedChanges: vscode.SourceControlResourceGroup;
     private excludedChanges: vscode.SourceControlResourceGroup;
     private repo: TFSRepository;
 
-    constructor(context: vscode.ExtensionContext, private readonly workspaceFolder: vscode.WorkspaceFolder) {
+    constructor(context: vscode.ExtensionContext, private readonly workspaceFolder: vscode.WorkspaceFolder, private database: TFSLocalDatabase) {
         this._scm = vscode.scm.createSourceControl("tfs", "tfs", workspaceFolder.uri);
         this.includedChanges = this._scm.createResourceGroup('tfs-included-changes', 'Included Changes');
         this.excludedChanges = this._scm.createResourceGroup('tfs-excluded-changes', 'Excluded Changes');
@@ -38,7 +39,11 @@ export class TFSSourceControl implements vscode.Disposable {
         let excChanges: vscode.SourceControlResourceState[] = [];
 
         for(const item of items) {
-            excChanges.push(item);
+            if(this.database.included(item.resourceUri.fsPath)) {
+                incChanges.push(item);
+            } else {
+                excChanges.push(item);
+            }
         }
 
         this.includedChanges.resourceStates = incChanges;

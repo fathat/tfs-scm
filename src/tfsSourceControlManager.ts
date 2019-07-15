@@ -1,17 +1,20 @@
-import { TFSSourceControl } from "./tfsSourceControl";
+import { TFSWorkspace } from "./tfsWorkspace";
 import * as vscode from 'vscode';
 import * as cpp from "child-process-promise";
 import { TFSDocumentContentProvider } from "./tfsDocumentContentProvider";
+import { TFSLocalDatabase, StateChange } from "./tfsLocalDatabase";
 
 export class TFSSourceControlManager {
 
-    scmMap: Map<vscode.Uri, TFSSourceControl> = new Map<vscode.Uri, TFSSourceControl>();
+    scmMap: Map<vscode.Uri, TFSWorkspace> = new Map<vscode.Uri, TFSWorkspace>();
 
     public out: vscode.OutputChannel;
     public documentContentProvider: TFSDocumentContentProvider;
+    public database: TFSLocalDatabase;
 
     constructor(private context: vscode.ExtensionContext) {
 
+        this.database = new TFSLocalDatabase(context);
         this.documentContentProvider = new TFSDocumentContentProvider();
 
         context.subscriptions.push(vscode.workspace.registerTextDocumentContentProvider('tfs', this.documentContentProvider));
@@ -29,7 +32,7 @@ export class TFSSourceControlManager {
                 //good
                 (confDoc: vscode.TextDocument) => {
                     this.out.appendLine(`Registering as SCM for ${folder.uri}`);
-                    this.scmMap.set(folder.uri, new TFSSourceControl(context, folder));
+                    this.scmMap.set(folder.uri, new TFSWorkspace(context, folder, this.database));
                 },
                 //err
                 (reason) => {
@@ -37,6 +40,24 @@ export class TFSSourceControlManager {
                 });
         }
 
+    }
+
+    excludeFileFromChangeset(path: string): void {
+        const wasModified = this.database.excludeFileFromChangeset(path);
+        if(wasModified === StateChange.Modified) {
+            for (const [_, sc] of this.scmMap) {
+                sc.update();
+            }
+        }
+    }    
+    
+    includeFileInChangeset(path: string): void {
+        const wasModified = this.database.includeFileInChangeset(path);
+        if(wasModified === StateChange.Modified) {
+            for (const [_, sc] of this.scmMap) {
+                sc.update();
+            }
+        }
     }
 
     async cmd(args: string[], cwd?: string) {
