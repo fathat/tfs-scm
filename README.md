@@ -43,6 +43,9 @@ This extension contributes the following settings:
 
 ## Release Notes
 
+### 0.0.4
+* Auto register as TFS SCM
+
 ### 0.0.3
 
 * Fix status icons for pending changes
