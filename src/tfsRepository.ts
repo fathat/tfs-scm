@@ -24,6 +24,30 @@ export class TFSDiffWithServerCommand implements vscode.Command {
 	}
 }
 
+function iconForChangeType(changetype: string) {
+	let iconType = null;
+	switch (changetype) {
+		case "add":
+			iconType = "status-add";
+			break;
+		case "delete":
+			iconType = "status-delete";
+			break;
+		case "edit":
+			iconType = "status-modified";
+			break;
+	}
+
+	return iconType === null ? null : {
+		dark: {
+			iconPath: path.join(__filename, '..', '..', 'icons', `${iconType}.svg`)
+		},
+		light: {
+			iconPath: path.join(__filename, '..', '..', 'icons', `${iconType}.svg`)
+		}
+	};
+}
+
 export class TFSStatusItem implements SourceControlResourceState {
 
 	public command?: vscode.Command | undefined;
@@ -37,16 +61,17 @@ export class TFSStatusItem implements SourceControlResourceState {
 		public changeset: string) {
 
 		this.command = new TFSDiffWithServerCommand([resourceUri]);
+		let icon = iconForChangeType(this.changetype);
+
 		this.decorations = {
-			dark: {
-				iconPath: changetype === 'add' ? 'icons/dark/add.svg' : 'icons/dark/edit.svg'
-			},
-			light: {
-				iconPath: changetype === 'add' ? 'icons/light/add.svg' : 'icons/light/edit.svg'
-			},
 			strikeThrough: changetype === 'delete',
-			tooltip: serverpath
+			tooltip: changetype
 		};
+
+		if(icon) {
+			Object.assign(this.decorations, icon);
+		}
+
 	}
 }
 

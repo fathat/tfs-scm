@@ -362,5 +362,8 @@
 	"dependencies": {
 		"@types/child-process-promise": "^2.2.1",
 		"child-process-promise": "^2.2.1"
+	},
+	"repository": {
+		"url": "https://github.com/fathat/tfs-scm"
 	}
 }

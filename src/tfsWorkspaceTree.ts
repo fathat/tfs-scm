@@ -1,5 +1,8 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
+import { tfcmd } from './tfsCmd';
+import { promises } from 'dns';
+import { stringify } from 'querystring';
 
 enum WorkspaceTreeItemKind {
     Collection,
@@ -27,29 +30,19 @@ export interface ITFSWorkspaceMapping extends ITFSWorkspaceItem  {
 }
 
 export interface ITFSWorkspaceTreeItem extends ITFSWorkspaceItem  {
-    readonly kind: WorkspaceTreeItemKind;
+    kind: WorkspaceTreeItemKind;
     data: ITFSWorkspaceItem;
     children: ITFSWorkspaceTreeItem[];
 }
 
-export const sampleRoots =  [{
+const sampleRoots =  [{
     kind: WorkspaceTreeItemKind.Collection,
-    data: { url: 'http://someserver/' },
+    data: { url: 'http://tfsserver/' },
     children: [
     {
         kind: WorkspaceTreeItemKind.Workspace,
         data: {
-            workspace: "TestWorkspace",
-            computer: "CMPY100",
-            owner: "Ian",
-            toString() { return this.workspace; }
-        },
-        children: []
-    },
-    {
-        kind: WorkspaceTreeItemKind.Workspace,
-        data: {
-            workspace: "Wark",
+            workspace: "MyWorkspace",
             computer: "CMPY200",
             owner: "Ian",
             toString() { return this.workspace; }
@@ -65,8 +58,132 @@ export const sampleRoots =  [{
             }
         ]
     }]
-}];
+}]; 
 
+const reWorkspaceLine = /\=*\s*Workspace\s*:\s*(.*)\s\((.*)\)/;
+const reCollectionLine = /\s*Collection\s*:\s*(.*)/;
+
+interface IWorkfoldWorkspaceMapping {
+    serverPath: string;
+    localPath: string;
+}
+
+interface IWorkfoldWorkspace {
+    name?: string;
+    owner?: string;
+    collection?: string;
+    mappings: IWorkfoldWorkspaceMapping[];
+}
+
+/* parse a "tf vc workfold" command. Output is like:
+============================================================================================================ 
+Workspace : SOMEWORKSPACE (Owner Name)
+Collection: http://server/stuff
+ $/ServerFolders: C:\LocalFolders
+
+Note that the ============= thing isn't seperated by a newline neccessarily. But sometimes? It's 
+based on the terminal width. So yeah. Gross. This is why we can't have nice things.
+*/
+async function workfold() {
+    if(!vscode.workspace.workspaceFolders) {
+        throw new Error("Workspace folders not defined!");
+    }
+
+    let resultPromises = vscode.workspace.workspaceFolders.map(
+        (wf) => tfcmd(['vc', 'workfold'], wf.uri.fsPath));    
+    let results = await Promise.all(resultPromises);
+
+    let workspace: IWorkfoldWorkspace | null = null;
+    let workspaces = [];
+
+    for(const workFoldResult of results) {
+        const lines = workFoldResult.stdout.split('\n');
+        workspace = null;
+
+        for(const line of lines) {
+            const [, workspaceName, owner] = reWorkspaceLine.exec(line) || [undefined, undefined, undefined];
+
+            if(workspaceName) {
+                workspace = {} as IWorkfoldWorkspace;
+                workspaces.push(workspace);
+                workspace.name = workspaceName;
+                workspace.owner = owner;
+                workspace.mappings = [];
+                continue;
+            }
+
+            const [, collection] = reCollectionLine.exec(line) || [undefined, undefined];
+            if(workspace && collection) {
+                workspace.collection = collection;
+                continue;
+            }
+
+            const lt = line.trim();
+            if(workspace && lt.startsWith('$')) {
+
+                const sepIndex = lt.indexOf(':');
+                const serverPath = lt.slice(0, sepIndex);
+                const localPath = lt.slice(sepIndex+1).trim();
+                workspace.mappings.push({serverPath, localPath});
+            }
+        }
+    }
+    return workspaces;
+}
+
+async function workfoldOutputToTree(workspaces: IWorkfoldWorkspace[]) {
+    const collections: Map<string, ITFSWorkspaceTreeItem> = new Map<string, ITFSWorkspaceTreeItem>();
+
+    for(const workspace of workspaces) {
+        if(!workspace.collection) { continue; }
+        
+        let tfsCollectionTreeItem;
+        if(!collections.has(workspace.collection)) {
+            tfsCollectionTreeItem = {
+                kind: WorkspaceTreeItemKind.Collection,
+                children: [],
+                data: {
+                    url: workspace.collection
+                }
+            } as ITFSWorkspaceTreeItem;
+            collections.set(workspace.collection, tfsCollectionTreeItem);
+        } else {
+            tfsCollectionTreeItem = collections.get(workspace.collection);
+        }
+
+        if(!tfsCollectionTreeItem) {
+            continue;
+        }
+
+        let tfsWorkspaceTreeItem = {
+            kind: WorkspaceTreeItemKind.Workspace,
+            data: {
+                workspace: workspace.name,
+                owner: workspace.owner
+            },
+            children: []
+        } as ITFSWorkspaceTreeItem;
+        tfsCollectionTreeItem.children.push(tfsWorkspaceTreeItem);
+        
+        for(const mapping of workspace.mappings) {
+            let tfsMappingTreeItem = {
+                kind: WorkspaceTreeItemKind.Mapping,
+                data: {
+                    serverPath: mapping.serverPath,
+                    localPath: mapping.localPath
+                },
+                children: []
+            } as ITFSWorkspaceTreeItem;
+            tfsWorkspaceTreeItem.children.push(tfsMappingTreeItem);
+        }
+    }
+
+    let rval = [];
+    for(const c of collections.values()) {
+        rval.push(c);
+    }
+    return rval;
+}
 
 export class TFSWorkspaceTreeProvider implements vscode.TreeDataProvider<ITFSWorkspaceTreeItem> {
 
@@ -76,11 +193,24 @@ export class TFSWorkspaceTreeProvider implements vscode.TreeDataProvider<ITFSWor
     roots: ITFSWorkspaceTreeItem[];
 
     constructor() { 
-        this.roots = sampleRoots as ITFSWorkspaceTreeItem[];
+        this.roots = []; //set to sampleRoots for screenshots
+        this.refresh();
+    }
+
+    refresh() {
+        return workfold()
+            .then((workspaces: IWorkfoldWorkspace[]) => workfoldOutputToTree(workspaces))
+            .then((roots) => {
+                this.roots = roots;
+                this._onDidChangeTreeData.fire(null);
+            });
     }
     
     getTreeItem(element: ITFSWorkspaceTreeItem): vscode.TreeItem | Thenable<vscode.TreeItem> {
-        const collapsibleState = element.children.length > 0 ? vscode.TreeItemCollapsibleState.Expanded : vscode.TreeItemCollapsibleState.None;
+        const collapsibleState = element.children.length > 0 
+            ? vscode.TreeItemCollapsibleState.Expanded 
+            : vscode.TreeItemCollapsibleState.None;
+        
         switch(element.kind) {
             case WorkspaceTreeItemKind.Collection: {
                 const data = (element.data as ITFSCollection);
@@ -103,8 +233,9 @@ export class TFSWorkspaceTreeProvider implements vscode.TreeDataProvider<ITFSWor
             }
                 
             case WorkspaceTreeItemKind.Mapping:{
-                const lp = (element.data as ITFSWorkspaceMapping).localPath;
-                const sp = (element.data as ITFSWorkspaceMapping).serverPath;
+                const mapping = element.data as ITFSWorkspaceMapping;
+                const lp = mapping.localPath;
+                const sp = mapping.serverPath;
                 let item = new vscode.TreeItem(
                     `${lp} ⇔ ${sp}`);
                 

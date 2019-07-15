@@ -1,33 +1,53 @@
 # tfs-scm README
 
-This is an extension to allow VSCode to interact with TFS Source Control using Visual Studio's tf.exe. Highly experimental/incomplete!!
+This is an extension to allow VSCode to interact with TFS Source Control using Visual Studio's tf.exe. Highly experimental/incomplete!! This is mostly intended to be used side by side with VS2019 at the moment rather than as a complete replacement.
 
 ## Features
 
-* Pending change list
-* Quick Diff
-* Automatic checkout
-* Add/Delete/Undo/Get
+### Pending change list
+
+See and modify pending changes
+
+![Pending Changes Example](docs/pending-changes.png)
+
+### Quick Diff
+
+![Diff Example](docs/diff.png)
+
+### View workspace Info
+
+![Workspace Mapping Example](docs/workspace-mapping.png)
+
+### Context menu options for Add/Delete/Undo/Get
+
+![Context Menu Example](docs/context-menu.png)
+
 
 ## Requirements
 
-Must have a local copy of TF.exe installed from Visual Studio. This is _not_ included. 
+Must have a local copy of TF.exe installed from Visual Studio. This is _not_ included. This has only been tested against VS2019.
 
 ## Extension Settings
 
 This extension contributes the following settings:
 
-`tfsSCM.tfsPath`: Path to the TFS command line client (tf.exe).
+`tfsSCM.tfsPath`: Path to the TFS command line client (tf.exe). This must be set!
 
 ## Known Issues
 
+* Windows only at the moment.
+* No git support -- TFVC only (VSCode git support is already great!)
 * Commit is not yet implemented
 * Branch/merge is not yet implemented
-* Creating workspace mappings is not yet implemented
-* Workspace tree is just a demo
+* Creating workspace mappings is not yet implemented -- view only
 
 ## Release Notes
 
 ### 0.0.2
 
 Placed on github! Does some things.
+
+### 0.0.3
+
+* Fix status icons for pending changes
+* Implement viewing workspace tree
