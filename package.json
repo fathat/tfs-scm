@@ -2,7 +2,7 @@
 	"name": "tfs-scm",
 	"displayName": "tfs-scm",
 	"description": "TFS Source Control",
-	"version": "0.0.2",
+	"version": "0.0.3",
 	"engines": {
 		"vscode": "^1.36.0"
 	},
