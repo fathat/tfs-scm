@@ -27,14 +27,14 @@ export class TFSSourceControlManager {
         }
 
         for (let folder of vscode.workspace.workspaceFolders) {
-            this.out.appendLine(`Scanning!!~! ${folder.uri}`);
+            this.out.appendLine(`Scanning ${folder.uri.fsPath}`);
             
             inTFS(folder).then((isInFolder) => {
                 if (isInFolder) {
-                    this.out.appendLine(`Registering as SCM for ${folder.uri}`);
+                    this.out.appendLine(`Registering as SCM for ${folder.uri.fsPath}`);
                     this.scmMap.set(folder.uri, new TFSWorkspace(context, folder, this.database));
                 } else {
-                    this.out.appendLine(`Workspace folder ${folder.uri} does not match a TFS mapping, skipping`);
+                    this.out.appendLine(`Workspace folder ${folder.uri.fsPath} does not match a TFS mapping, skipping`);
                 }
             });
         }
