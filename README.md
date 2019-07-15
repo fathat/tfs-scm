@@ -43,11 +43,11 @@ This extension contributes the following settings:
 
 ## Release Notes
 
-### 0.0.2
-
-Placed on github! Does some things.
-
 ### 0.0.3
 
 * Fix status icons for pending changes
 * Implement viewing workspace tree
+
+### 0.0.2
+
+Placed on github! Does some things.
