@@ -174,7 +174,6 @@ export async function rm(scm: TFSSourceControlManager, arg: any) {
             cmdArgs.push('/recursive');
         }
 
-        vscode.window.setStatusBarMessage("TFS: Retrieving...");
         const result = await scm.cmd(cmdArgs, workspacePathInfo.workspaceFolder.uri.fsPath);
         vscode.window.setStatusBarMessage(`TFS: ${uri.fsPath} successfully deleted from version control.`);
         return ActionModifiedWorkspace.Modified;
@@ -192,8 +191,7 @@ export async function undo(scm: TFSSourceControlManager, arg: any) {
         if (workspacePathInfo.isDirectory) {
             cmdArgs.push('/recursive');
         }
-
-        vscode.window.setStatusBarMessage("TFS: Retrieving...");
+        
         const result = await scm.cmd(cmdArgs, workspacePathInfo.workspaceFolder.uri.fsPath);
         vscode.window.setStatusBarMessage(`TFS: ${uri.fsPath} changes undone.`);
         return ActionModifiedWorkspace.Modified;
@@ -202,6 +200,34 @@ export async function undo(scm: TFSSourceControlManager, arg: any) {
         return ActionModifiedWorkspace.Unmodified;
     }
 }
+
+
+export async function discard(scm: TFSSourceControlManager, arg: any) {
+    try {
+        const pick = await vscode.window.showWarningMessage(
+            "Are you sure you want to undo all pending changes?",
+            // { modal: true },
+            { title: "Undo All" },
+            { title: "Cancel", isCloseAffordance: true }
+          );
+        
+        if (vscode.workspace.workspaceFolders && pick && pick.title === "Undo All") {
+            for(const workspaceFolder of vscode.workspace.workspaceFolders) {
+                let cmdArgs = ['undo', '.', '/noprompt', '/recursive'];
+                const result = await scm.cmd(cmdArgs, workspaceFolder.uri.fsPath);
+            }
+            vscode.window.setStatusBarMessage(`TFS: Changes undone.`);
+            return ActionModifiedWorkspace.Modified;
+        }
+        
+        return ActionModifiedWorkspace.Unmodified;
+
+    } catch (err) {
+        vscode.window.showErrorMessage(err.message);
+        return ActionModifiedWorkspace.Unmodified;
+    }
+}
+
 
 export async function include(scm: TFSSourceControlManager, arg: any) {
     try {

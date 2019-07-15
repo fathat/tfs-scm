@@ -48,6 +48,8 @@ export function activate(context: vscode.ExtensionContext) {
 		context.subscriptions.push(vscode.commands.registerCommand('tfs-scm.openInBrowser', (...args: any) => commands.executeAction(scm, commands.openInBrowser, ...args)));
 		context.subscriptions.push(vscode.commands.registerCommand('tfs-scm.refresh', (...args: any) => {scm.refresh();}));
 	
+		context.subscriptions.push(vscode.commands.registerCommand('tfs-scm.discard', (...args: any) => commands.executeAction(scm, commands.discard, ...args)));
+
 		context.subscriptions.push(vscode.commands.registerCommand('tfs-scm.include', (...args: any) => commands.executeAction(scm, commands.include, ...args)));
 		context.subscriptions.push(vscode.commands.registerCommand('tfs-scm.exclude', (...args: any) => commands.executeAction(scm, commands.exclude, ...args)));
 		
