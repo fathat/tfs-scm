@@ -42,6 +42,7 @@ export class TFSWorkspace implements vscode.Disposable {
 
     includeAll() {
         this.repo.provideStatus().then((items: TFSStatusItem[]) => {
+            this.database.includeAll(items.map(item => item.resourceUri.fsPath));
             this.updateChanges(items, UpdateMode.IncludeAll);
         });
     }

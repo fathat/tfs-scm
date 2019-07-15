@@ -66,6 +66,7 @@ export class TFSSourceControlManager {
     }
 
     excludeAll(): void {
+        this.database.excludeAll();
         for (const [_, sc] of this.scmMap) {
             sc.excludeAll();
         }

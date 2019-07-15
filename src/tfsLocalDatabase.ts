@@ -9,18 +9,21 @@ export enum StateChange {
     Modified
 }
 
-export interface ITFSLocalDatabase {
-    excludeFileFromChangeset(path: string): void;
-    includeFileInChangeset(path: string): void;
-    write(): void;
-    included(path: string) : boolean;
-}
-
-export class TFSLocalDatabase implements ITFSLocalDatabase {
+export class TFSLocalDatabase {
     data: TFSLocalData;
 
     constructor(private context: vscode.ExtensionContext) {
         this.data = context.workspaceState.get<TFSLocalData>("tfsdata") || new TFSLocalData();
+    }
+
+    excludeAll(): void {
+        this.data.pendingChanges = [];
+        this.write();
+    }
+
+    includeAll(changes: string[]): void {
+        this.data.pendingChanges = changes;
+        this.write();
     }
 
     excludeFileFromChangeset(path: string): StateChange {
@@ -46,8 +49,8 @@ export class TFSLocalDatabase implements ITFSLocalDatabase {
         return this.data.pendingChanges.includes(path);
     }
 
-    write(): void {
-        this.context.workspaceState.update("tfsdata", this.data);
+    write() {
+        return this.context.workspaceState.update("tfsdata", this.data);
     }
 
 
