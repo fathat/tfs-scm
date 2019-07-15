@@ -1,5 +1,6 @@
 {
 	"name": "tfs-scm",
+	"publisher": "qcs",
 	"displayName": "tfs-scm",
 	"description": "TFS Source Control",
 	"version": "0.0.3",
@@ -16,20 +17,20 @@
 	"contributes": {
 		"viewsContainers": {
 			"activitybar": [
-			  {
-				"id": "tfs-activity",
-				"title": "TFS",
-				"icon": "icons/tfs.svg"
-			  }
+				{
+					"id": "tfs-activity",
+					"title": "TFS",
+					"icon": "icons/tfs.svg"
+				}
 			]
 		},
 		"views": {
 			"tfs-activity": [
-			{
-			  "id": "tfs-workspaces",
-			  "name": "Workspaces"
-			}
-		  ]
+				{
+					"id": "tfs-workspaces",
+					"name": "Workspaces"
+				}
+			]
 		},
 		"configuration": {
 			"title": "TFS configuration",
@@ -67,8 +68,8 @@
 				}
 			},
 			{
-                "command": "tfs-scm.add",
-                "title": "Add to Pending Changes",
+				"command": "tfs-scm.add",
+				"title": "Add to Pending Changes",
 				"category": "TFS",
 				"icon": {
 					"dark": "icons/dark/add.svg",
@@ -78,37 +79,37 @@
 						"light": "icons/light/add.svg"
 					}
 				}
-            },
-            {
-                "command": "tfs-scm.checkout",
-                "title": "Check Out for Edit",
+			},
+			{
+				"command": "tfs-scm.checkout",
+				"title": "Check Out for Edit",
 				"category": "TFS",
 				"icon": {
 					"dark": "icons/dark/edit.svg",
 					"light": "icons/light/edit.svg"
 				}
-            },
-            {
-                "command": "tfs-scm.rm",
-                "title": "Delete from TFS",
+			},
+			{
+				"command": "tfs-scm.rm",
+				"title": "Delete from TFS",
 				"category": "TFS",
 				"icon": {
 					"dark": "icons/dark/delete.svg",
 					"light": "icons/light/delete.svg"
 				}
-            },
-            {
-                "command": "tfs-scm.undo",
-                "title": "Undo Pending Changes",
+			},
+			{
+				"command": "tfs-scm.undo",
+				"title": "Undo Pending Changes",
 				"category": "TFS",
 				"icon": {
 					"dark": "icons/dark/undo.svg",
 					"light": "icons/light/undo.svg"
 				}
-            },
-            {
-                "command": "tfs-scm.openInBrowser",
-                "title": "Open in TFS Web UI",
+			},
+			{
+				"command": "tfs-scm.openInBrowser",
+				"title": "Open in TFS Web UI",
 				"category": "TFS",
 				"icon": {
 					"dark": "icons/dark/browse.svg",
@@ -116,8 +117,8 @@
 				}
 			},
 			{
-                "command": "tfs-scm.browse",
-                "title": "Browse",
+				"command": "tfs-scm.browse",
+				"title": "Browse",
 				"category": "TFS",
 				"icon": {
 					"dark": "icons/dark/browse.svg",
@@ -125,8 +126,8 @@
 				}
 			},
 			{
-                "command": "tfs-scm.discard",
-                "title": "Discard All",
+				"command": "tfs-scm.discard",
+				"title": "Discard All",
 				"category": "TFS",
 				"icon": {
 					"dark": "icons/dark/delete.svg",
@@ -134,8 +135,8 @@
 				}
 			},
 			{
-                "command": "tfs-scm.commit",
-                "title": "Commit",
+				"command": "tfs-scm.commit",
+				"title": "Commit",
 				"category": "TFS",
 				"icon": {
 					"dark": "icons/dark/check-circle.svg",
@@ -143,8 +144,8 @@
 				}
 			},
 			{
-                "command": "tfs-scm.open",
-                "title": "Open",
+				"command": "tfs-scm.open",
+				"title": "Open",
 				"category": "TFS",
 				"icon": {
 					"dark": "icons/dark/browse.svg",
@@ -152,8 +153,8 @@
 				}
 			},
 			{
-                "command": "tfs-scm.openRemoteDiff",
-                "title": "Diff with Server",
+				"command": "tfs-scm.openRemoteDiff",
+				"title": "Diff with Server",
 				"category": "TFS",
 				"icon": {
 					"dark": "icons/dark/compare-arrows.svg",
@@ -161,17 +162,17 @@
 				}
 			},
 			{
-                "command": "tfs-scm.include",
-                "title": "Include",
+				"command": "tfs-scm.include",
+				"title": "Include",
 				"category": "TFS",
 				"icon": {
 					"dark": "icons/dark/add.svg",
 					"light": "icons/light/add.svg"
 				}
-            },
+			},
 			{
-                "command": "tfs-scm.exclude",
-                "title": "Exclude",
+				"command": "tfs-scm.exclude",
+				"title": "Exclude",
 				"category": "TFS",
 				"icon": {
 					"dark": "icons/dark/remove.svg",
@@ -179,17 +180,17 @@
 				}
 			},
 			{
-                "command": "tfs-scm.include-all",
-                "title": "Include All",
+				"command": "tfs-scm.include-all",
+				"title": "Include All",
 				"category": "TFS",
 				"icon": {
 					"dark": "icons/dark/add.svg",
 					"light": "icons/light/add.svg"
 				}
-            },
+			},
 			{
-                "command": "tfs-scm.exclude-all",
-                "title": "Exclude All",
+				"command": "tfs-scm.exclude-all",
+				"title": "Exclude All",
 				"category": "TFS",
 				"icon": {
 					"dark": "icons/dark/remove.svg",
@@ -197,14 +198,14 @@
 				}
 			},
 			{
-                "command": "tfs-scm.undo-all",
-                "title": "Undo All",
+				"command": "tfs-scm.undo-all",
+				"title": "Undo All",
 				"category": "TFS",
 				"icon": {
 					"dark": "icons/dark/undo.svg",
 					"light": "icons/light/undo.svg"
 				}
-            }
+			}
 		],
 		"menus": {
 			"explorer/context": [
@@ -282,7 +283,6 @@
 					"command": "tfs-scm.include-all",
 					"group": "inline",
 					"when": "scmProvider == tfs && scmResourceGroup == tfs-excluded-changes"
-
 				},
 				{
 					"command": "tfs-scm.exclude-all",
@@ -310,7 +310,6 @@
 					"command": "tfs-scm.include",
 					"group": "inline",
 					"when": "scmProvider == tfs && scmResourceGroup == tfs-excluded-changes"
-
 				},
 				{
 					"command": "tfs-scm.exclude",
@@ -326,7 +325,6 @@
 					"command": "tfs-scm.include",
 					"group": "navigation",
 					"when": "scmProvider == tfs && scmResourceGroup == tfs-excluded-changes"
-
 				},
 				{
 					"command": "tfs-scm.exclude",
@@ -355,9 +353,12 @@
 		"@types/vscode": "^1.36.0",
 		"glob": "^7.1.4",
 		"mocha": "^6.1.4",
-		"typescript": "^3.3.1",
+		"ts-loader": "^6.0.4",
 		"tslint": "^5.12.1",
-		"vscode-test": "^1.0.0-next.0"
+		"typescript": "^3.3.1",
+		"vscode-test": "^1.0.0-next.0",
+		"webpack": "^4.35.3",
+		"webpack-cli": "^3.3.6"
 	},
 	"dependencies": {
 		"@types/child-process-promise": "^2.2.1",
