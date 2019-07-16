@@ -19,7 +19,6 @@ export function activate(context: vscode.ExtensionContext) {
 
 		const workspaceTreeProvider = new tfsWorkspaceTree.TFSWorkspaceTreeProvider();
 		vscode.window.registerTreeDataProvider('tfs-workspaces', workspaceTreeProvider);
-		
 	
 		// Auto checkout files if they're not writeable on save
 		vscode.workspace.onWillSaveTextDocument((e: vscode.TextDocumentWillSaveEvent) => {
@@ -37,6 +36,7 @@ export function activate(context: vscode.ExtensionContext) {
 		context.subscriptions.push(vscode.commands.registerCommand('tfs-scm.info', () => {
 			vscode.window.showInformationMessage('TFS-SCM Running!');
 		}));
+
 	
 		context.subscriptions.push(vscode.commands.registerCommand('tfs-scm.open', (...args: any) => commands.executeAction(scm, commands.open, ...args)));
 		context.subscriptions.push(vscode.commands.registerCommand('tfs-scm.openRemoteDiff', (...args: any) => commands.executeAction(scm, commands.openRemoteDiff, ...args)));

@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
-import { TFSRepository, TFSStatusItem } from './tfsRepository';
-import { Uri } from 'vscode';
+import { TFSRepository, TFSStatusItem, TFS_SCHEME } from './tfsRepository';
+import { Uri, ProviderResult, QuickDiffProvider, Disposable } from 'vscode';
 import { TFSLocalDatabase } from './tfsLocalDatabase';
 
 enum UpdateMode {
@@ -9,46 +9,66 @@ enum UpdateMode {
     ExcludeAll
 }
 
-export class TFSWorkspace implements vscode.Disposable {
-    
-    private _scm: vscode.SourceControl;
+export class TFSWorkspace implements Disposable, QuickDiffProvider {
+
+    private scm: vscode.SourceControl;
     private includedChanges: vscode.SourceControlResourceGroup;
     private excludedChanges: vscode.SourceControlResourceGroup;
-    private repo: TFSRepository;
+    private repo: TFSRepository[] = [];
 
-    constructor(context: vscode.ExtensionContext, private readonly workspaceFolder: vscode.WorkspaceFolder, private database: TFSLocalDatabase) {
-        this._scm = vscode.scm.createSourceControl("tfs", "tfs", workspaceFolder.uri);
-        this.includedChanges = this._scm.createResourceGroup('tfs-included-changes', 'Included Changes');
-        this.excludedChanges = this._scm.createResourceGroup('tfs-excluded-changes', 'Excluded Changes');
-        this.repo = new TFSRepository(workspaceFolder, '1234');
-        this._scm.quickDiffProvider = this.repo;
-        this._scm.inputBox.placeholder = 'Commit message goes here';
+    provideOriginalResource?(uri: Uri, token: vscode.CancellationToken): ProviderResult<Uri> {
+		let path = uri.fsPath;
+		return Uri.parse(`${TFS_SCHEME}:${path}`);
+    }
+    
+    constructor(context: vscode.ExtensionContext, private database: TFSLocalDatabase) {
+        this.scm = vscode.scm.createSourceControl("tfs", "tfs");
+        this.includedChanges = this.scm.createResourceGroup('tfs-included-changes', 'Included Changes');
+        this.excludedChanges = this.scm.createResourceGroup('tfs-excluded-changes', 'Excluded Changes');
+        this.scm.inputBox.placeholder = 'Commit message goes here';
+        
+        context.subscriptions.push(this.scm);
 
-        context.subscriptions.push(this._scm);
-
-        let fileSystemWatcher = vscode.workspace.createFileSystemWatcher(new vscode.RelativePattern(workspaceFolder, "**/*"));
-        fileSystemWatcher.onDidChange(uri => this.onResourceChange(uri), context.subscriptions);
-		fileSystemWatcher.onDidCreate(uri => this.onResourceCreate(uri), context.subscriptions);
-        fileSystemWatcher.onDidDelete(uri => this.onResourceDelete(uri), context.subscriptions);
+        if(vscode.workspace.workspaceFolders) {
+            for(const wf of vscode.workspace.workspaceFolders) {
+                let fileSystemWatcher = vscode.workspace.createFileSystemWatcher(new vscode.RelativePattern(wf, "**/*"));
+                this.repo.push(new TFSRepository(wf));
+                fileSystemWatcher.onDidChange(uri => this.onResourceChange(uri), context.subscriptions);
+                fileSystemWatcher.onDidCreate(uri => this.onResourceCreate(uri), context.subscriptions);
+                fileSystemWatcher.onDidDelete(uri => this.onResourceDelete(uri), context.subscriptions);
+            }
+        }
         
         this.update();
     }
 
+    async status() {
+        if(this.repo.length === 0) {
+            return [];
+        }
+        else if(this.repo.length === 1) {
+            return this.repo[0].provideStatus();
+        }
+
+        const all = await Promise.all(this.repo.map(r => r.provideStatus()));
+        return all.reduce((a, b) => a.concat(b));
+    }
+
     update() {
-        this.repo.provideStatus().then((items: TFSStatusItem[]) => {
+        this.status().then((items: TFSStatusItem[]) => {
             this.updateChanges(items, UpdateMode.Normal);
         });
     }
 
     includeAll() {
-        this.repo.provideStatus().then((items: TFSStatusItem[]) => {
+        this.status().then((items: TFSStatusItem[]) => {
             this.database.includeAll(items.map(item => item.resourceUri.fsPath));
             this.updateChanges(items, UpdateMode.IncludeAll);
         });
     }
 
     excludeAll() {
-        this.repo.provideStatus().then((items: TFSStatusItem[]) => {
+        this.status().then((items: TFSStatusItem[]) => {
             this.updateChanges(items, UpdateMode.ExcludeAll);
         });
     }

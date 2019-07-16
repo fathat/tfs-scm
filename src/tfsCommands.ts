@@ -81,8 +81,8 @@ export async function add(scm: TFSSourceControlManager, arg: any) {
 }
 
 export async function get(scm: TFSSourceControlManager, arg: any) {
+    let statusBarMessage = vscode.window.setStatusBarMessage("TFS: Retrieving...");
     try {
-
         const uri = getActionTargetUri(arg);
         const workspacePathInfo = getWorkspaceUriInfo(uri);
         const relativePath = workspacePathInfo.relativePath || '.';
@@ -91,13 +91,13 @@ export async function get(scm: TFSSourceControlManager, arg: any) {
             cmdArgs.push('/recursive');
         }
 
-        vscode.window.setStatusBarMessage("TFS: Retrieving...");
         const result = await scm.cmd(cmdArgs, workspacePathInfo.workspaceFolder.uri.fsPath);
-        vscode.window.setStatusBarMessage(`TFS: ${uri.fsPath} successfully retrieved.`);
         return ActionModifiedWorkspace.Modified;
     } catch (err) {
         vscode.window.showErrorMessage(err.message);
         return ActionModifiedWorkspace.Unmodified;
+    } finally {
+        statusBarMessage.dispose();
     }
 }
 
@@ -165,6 +165,7 @@ export async function checkout(scm: TFSSourceControlManager, arg: any) {
         return ActionModifiedWorkspace.Unmodified;
     }
 }
+
 
 export async function rm(scm: TFSSourceControlManager, arg: any) {
     try {

@@ -75,15 +75,10 @@ export class TFSStatusItem implements SourceControlResourceState {
 	}
 }
 
-export class TFSRepository implements QuickDiffProvider {
+export class TFSRepository {
 
-	constructor(private workspaceFolder: WorkspaceFolder, private slug: string) { }
-
-	provideOriginalResource?(uri: Uri, token: CancellationToken): ProviderResult<Uri> {
-		let path = uri.fsPath;
-		return Uri.parse(`${TFS_SCHEME}:${path}`);
-	}
-
+	constructor(private workspaceFolder: WorkspaceFolder) { }
+	
 	public async provideStatus() {
 		const result = await tfcmd(["stat", "/format:detailed"], this.workspaceFolder.uri.fsPath);
 		const lines = result.stdout.split('\r\n');

@@ -1,13 +1,13 @@
-import { TFSWorkspace } from "./tfsWorkspace";
+import { TFSWorkspace } from "./tfsSourceControl";
 import * as vscode from 'vscode';
 import * as cpp from "child-process-promise";
 import { TFSDocumentContentProvider } from "./tfsDocumentContentProvider";
 import { TFSLocalDatabase, StateChange } from "./tfsLocalDatabase";
-import { inTFS } from "./tfsWorkspaceInfo";
+import { scryptSync } from "crypto";
 
 export class TFSSourceControlManager {
 
-    scmMap: Map<vscode.Uri, TFSWorkspace> = new Map<vscode.Uri, TFSWorkspace>();
+    tfs: TFSWorkspace;
 
     public out: vscode.OutputChannel;
     public documentContentProvider: TFSDocumentContentProvider;
@@ -17,59 +17,34 @@ export class TFSSourceControlManager {
 
         this.database = new TFSLocalDatabase(context);
         this.documentContentProvider = new TFSDocumentContentProvider();
+        this.tfs = new TFSWorkspace(context, this.database);
 
         context.subscriptions.push(vscode.workspace.registerTextDocumentContentProvider('tfs', this.documentContentProvider));
 
         this.out = vscode.window.createOutputChannel('TFS');
-
-        if (!vscode.workspace.workspaceFolders) {
-            throw new Error("Workspace folders are undefined! Extension should not have started.");
-        }
-
-        for (let folder of vscode.workspace.workspaceFolders) {
-            this.out.appendLine(`Scanning ${folder.uri.fsPath}`);
-            
-            inTFS(folder).then((isInFolder) => {
-                if (isInFolder) {
-                    this.out.appendLine(`Registering as SCM for ${folder.uri.fsPath}`);
-                    this.scmMap.set(folder.uri, new TFSWorkspace(context, folder, this.database));
-                } else {
-                    this.out.appendLine(`Workspace folder ${folder.uri.fsPath} does not match a TFS mapping, skipping`);
-                }
-            });
-        }
-
     }
 
     excludeFileFromChangeset(path: string): void {
         const wasModified = this.database.excludeFileFromChangeset(path);
         if(wasModified === StateChange.Modified) {
-            for (const [_, sc] of this.scmMap) {
-                sc.update();
-            }
+            this.tfs.update();
         }
     }    
     
     includeFileInChangeset(path: string): void {
         const wasModified = this.database.includeFileInChangeset(path);
         if(wasModified === StateChange.Modified) {
-            for (const [_, sc] of this.scmMap) {
-                sc.update();
-            }
+            this.tfs.update();
         }
     }
 
     includeAll(): void {
-        for (const [_, sc] of this.scmMap) {
-            sc.includeAll();
-        }
+        this.tfs.includeAll();
     }
 
     excludeAll(): void {
         this.database.excludeAll();
-        for (const [_, sc] of this.scmMap) {
-            sc.excludeAll();
-        }
+        this.tfs.excludeAll();
     }
 
     async cmd(args: string[], cwd?: string) {
@@ -95,8 +70,6 @@ export class TFSSourceControlManager {
     }
 
     refresh() {
-        for (const [_, sc] of this.scmMap) {
-            sc.update();
-        }
+        this.tfs.update();
     }
 }
