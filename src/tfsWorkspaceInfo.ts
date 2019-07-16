@@ -101,10 +101,10 @@ export async function workspaces() {
     return workspaces;
 }
 
-export async function inTFS(workspaceFolder: vscode.WorkspaceFolder) {
-    const folders = await workingFolders();
-    for(const workingFolder of folders) {
-        if(workspaceFolder.uri.fsPath.toLowerCase().startsWith(workingFolder.toLowerCase())) {
+export async function inTFS(folder: string) {
+    const tfsFolders = await workingFolders();
+    for(const workingFolder of tfsFolders) {
+        if(folder.toLowerCase().startsWith(workingFolder.toLowerCase())) {
             return true;
         }
     }

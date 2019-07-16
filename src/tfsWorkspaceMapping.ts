@@ -19,7 +19,7 @@ export class TFSWorkspaceMapping implements Disposable, QuickDiffProvider {
     }
     
     constructor(context: vscode.ExtensionContext, private workspace: ITFSWorkspaceInfo,  private mapping: ITFSWorkspaceMappingInfo, private database: TFSPendingChangesDatabase) {
-        this.scm = vscode.scm.createSourceControl("tfs", workspace.workspace + mapping.serverPath, Uri.file(mapping.localPath));
+        this.scm = vscode.scm.createSourceControl("tfs", `TFS ${workspace.workspace} :: ${mapping.localPath}`, Uri.file(mapping.localPath));
         this.includedChanges = this.scm.createResourceGroup('tfs-included-changes', 'Included Changes');
         this.excludedChanges = this.scm.createResourceGroup('tfs-excluded-changes', 'Excluded Changes');
         this.scm.inputBox.placeholder = 'Commit message goes here';

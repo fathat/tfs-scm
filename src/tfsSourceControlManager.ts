@@ -3,7 +3,7 @@ import * as vscode from 'vscode';
 import * as cpp from "child-process-promise";
 import { TFSDocumentContentProvider } from "./tfsDocumentContentProvider";
 import { TFSPendingChangesDatabase, StateChange } from "./tfsLocalDatabase";
-import { ITFSWorkspaceInfo } from "./tfsWorkspaceInfo";
+import { ITFSWorkspaceInfo, inTFS } from "./tfsWorkspaceInfo";
 import { TFSStatusItem } from "./TFSStatusItem";
 
 export class TFSSourceControlManager {
@@ -19,9 +19,23 @@ export class TFSSourceControlManager {
         this.database = new TFSPendingChangesDatabase(context);
         this.documentContentProvider = new TFSDocumentContentProvider();
 
+        
         for(const wks of workspaces) {
             for(const mapping of wks.mappings) {
-                this.workspace.push(new TFSWorkspaceMapping(context, wks, mapping, this.database));
+                const mappingInWorkspace = vscode.workspace.getWorkspaceFolder(vscode.Uri.file(mapping.localPath));
+                let workspaceIsSubfolderOfTFSMapping = false;
+
+                if(vscode.workspace.workspaceFolders) {
+                    for(const vscodeWorkspace of vscode.workspace.workspaceFolders) {
+                        if(vscodeWorkspace.uri.fsPath.toLowerCase().startsWith(mapping.localPath.toLowerCase())) {
+                            workspaceIsSubfolderOfTFSMapping = true;
+                        }
+                    }
+                }
+
+                if(workspaceIsSubfolderOfTFSMapping || mappingInWorkspace) {
+                    this.workspace.push(new TFSWorkspaceMapping(context, wks, mapping, this.database));
+                }
             }
         }        
         context.subscriptions.push(vscode.workspace.registerTextDocumentContentProvider('tfs', this.documentContentProvider));
