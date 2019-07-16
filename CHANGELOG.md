@@ -2,6 +2,10 @@
 
 All notable changes to the "tfs-scm" extension will be documented in this file.
 
+## 0.0.7
+### Added
+* Support for multiple workspaces open at once, with multiple mappings per workspace.
+
 ## 0.0.6
 ### Added
 * For pending changes, implement include-all and exclude-all, along with discard

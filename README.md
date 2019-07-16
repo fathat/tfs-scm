@@ -42,6 +42,8 @@ This extension contributes the following settings:
 * Creating workspace mappings is not yet implemented -- view only
 
 ## Release Notes
+### 0.0.7
+* Much better support for multiple workspaces open at once, with multiple mappings per workspace.
 
 ### 0.0.6
 * For pending changes, implement include-all and exclude-all, along with discard
