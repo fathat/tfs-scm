@@ -1,10 +1,10 @@
-import { TFSWorkspaceMapping } from "./tfsSourceControl";
+import { TFSWorkspaceMapping } from "./tfsWorkspaceMapping";
 import * as vscode from 'vscode';
 import * as cpp from "child-process-promise";
 import { TFSDocumentContentProvider } from "./tfsDocumentContentProvider";
-import { TFSLocalDatabase, StateChange } from "./tfsLocalDatabase";
-import { IWorkspace } from "./tfsWorkspaceInfo";
-import { TFSStatusItem } from "./tfsRepository";
+import { TFSPendingChangesDatabase, StateChange } from "./tfsLocalDatabase";
+import { ITFSWorkspaceInfo } from "./tfsWorkspaceInfo";
+import { TFSStatusItem } from "./TFSStatusItem";
 
 export class TFSSourceControlManager {
 
@@ -12,11 +12,11 @@ export class TFSSourceControlManager {
 
     public out: vscode.OutputChannel;
     public documentContentProvider: TFSDocumentContentProvider;
-    public database: TFSLocalDatabase;
+    public database: TFSPendingChangesDatabase;
 
-    constructor(private context: vscode.ExtensionContext, workspaces: IWorkspace[]) {
+    constructor(private context: vscode.ExtensionContext, workspaces: ITFSWorkspaceInfo[]) {
 
-        this.database = new TFSLocalDatabase(context);
+        this.database = new TFSPendingChangesDatabase(context);
         this.documentContentProvider = new TFSDocumentContentProvider();
 
         for(const wks of workspaces) {
@@ -29,8 +29,8 @@ export class TFSSourceControlManager {
         this.out = vscode.window.createOutputChannel('TFS');
     }
 
-    excludeOne(path: string): void {
-        const wasModified = this.database.excludeFileFromChangeset(path);
+    excludeOne(fsPath: string): void {
+        const wasModified = this.database.excludeFileFromChangeset(fsPath);
         if(wasModified === StateChange.Modified) {
             for(const wks of this.workspace) {
                 wks.update();
@@ -38,8 +38,8 @@ export class TFSSourceControlManager {
         }
     }    
     
-    includeOne(path: string): void {
-        const wasModified = this.database.includeFileInChangeset(path);
+    includeOne(fsPath: string): void {
+        const wasModified = this.database.includeFileInChangeset(fsPath);
         if(wasModified === StateChange.Modified) {
             for(const wks of this.workspace) {
                 wks.update();

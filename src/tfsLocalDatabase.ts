@@ -9,7 +9,7 @@ export enum StateChange {
     Modified
 }
 
-export class TFSLocalDatabase {
+export class TFSPendingChangesDatabase {
     data: TFSLocalData;
 
     constructor(private context: vscode.ExtensionContext) {

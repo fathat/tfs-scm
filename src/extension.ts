@@ -2,7 +2,7 @@ import * as vscode from 'vscode';
 import * as commands from './tfsCommands';
 import * as tfsUtil from './tfsUtil';
 import { TFSSourceControlManager } from './tfsSourceControlManager';
-import * as tfsWorkspaceTree from './tfsWorkspaceTree';
+import * as tfsWorkspaceTree from './tfsWorkspaceTreeProvider';
 import { workspaces } from './tfsWorkspaceInfo';
 
 let scm: TFSSourceControlManager;

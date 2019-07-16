@@ -6,7 +6,7 @@ import { lstatSync, existsSync } from 'fs';
 import { findWorkspaceRoot } from './tfsUtil';
 import { TFSSourceControlManager } from './tfsSourceControlManager';
 import * as tfsOpenInBrowser from './tfsOpenInBrowser';
-import { TFSStatusItem } from './tfsRepository';
+import { TFSStatusItem } from "./TFSStatusItem";
 
 export enum ActionModifiedWorkspace {
     Unmodified,
@@ -73,7 +73,6 @@ export async function add(scm: TFSSourceControlManager, arg: any) {
             cmdArgs.push('/recursive');
         }
         const result = await scm.cmd(cmdArgs, workspacePathInfo.workspaceFolder.uri.fsPath);
-        vscode.window.setStatusBarMessage(`TFS: ${uri.fsPath} successfully added to version control.`);
         return ActionModifiedWorkspace.Modified;
     } catch (err) {
         vscode.window.showErrorMessage(err.message);
@@ -123,7 +122,6 @@ export async function openRemoteDiff(scm: TFSSourceControlManager, arg: any) {
     try {
         let local = getActionTargetUri(arg);
         const remote = Uri.parse(`tfs:${local.fsPath.replace('\\', '/')}`);
-        //vscode.window.showTextDocument();
         const opts: vscode.TextDocumentShowOptions = {
             preserveFocus: false,
             preview: false,
@@ -159,7 +157,6 @@ export async function checkout(scm: TFSSourceControlManager, arg: any) {
         }
 
         const result = await scm.cmd(cmdArgs, workspacePathInfo.workspaceFolder.uri.fsPath);
-        vscode.window.setStatusBarMessage(`TFS: ${uri.fsPath} successfully checked out for editing.`);
         return ActionModifiedWorkspace.Modified;
     } catch (err) {
         vscode.window.showErrorMessage(err.message);
@@ -178,7 +175,6 @@ export async function rm(scm: TFSSourceControlManager, arg: any) {
         }
 
         const result = await scm.cmd(cmdArgs, workspacePathInfo.workspaceFolder.uri.fsPath);
-        vscode.window.setStatusBarMessage(`TFS: ${uri.fsPath} successfully deleted from version control.`);
         return ActionModifiedWorkspace.Modified;
     } catch (err) {
         vscode.window.showErrorMessage(err.message);
@@ -196,7 +192,6 @@ export async function undo(scm: TFSSourceControlManager, arg: any) {
         }
         
         const result = await scm.cmd(cmdArgs, workspacePathInfo.workspaceFolder.uri.fsPath);
-        vscode.window.setStatusBarMessage(`TFS: ${uri.fsPath} changes undone.`);
         return ActionModifiedWorkspace.Modified;
     } catch (err) {
         vscode.window.showErrorMessage(err.message);
@@ -219,7 +214,6 @@ export async function discard(scm: TFSSourceControlManager, arg: any) {
         if (pick && pick.title === "Undo All") {
             let cmdArgs = ['undo', '.', '/noprompt', '/recursive'];
             const result = await scm.cmd(cmdArgs, arg.rootUri.fsPath);
-            vscode.window.setStatusBarMessage(`TFS: Changes undone.`);
             return ActionModifiedWorkspace.Modified;
         }
         

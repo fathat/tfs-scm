@@ -3,12 +3,12 @@ import { tfcmd } from "./tfsCmd";
 import { labelToKey } from './tfsCmdParser';
 
 
-export interface IWorkspaceMapping {
+export interface ITFSWorkspaceMappingInfo {
     serverPath: string;
     localPath: string;
 }
 
-export interface IWorkspace {
+export interface ITFSWorkspaceInfo {
     workspace: string;
     owner?: string;
     computer?: string;
@@ -18,11 +18,11 @@ export interface IWorkspace {
     location?: string;
     fileTime?: string;
     
-    mappings: IWorkspaceMapping[];
+    mappings: ITFSWorkspaceMappingInfo[];
 }
 
 const reCollection = /\s*Collection\s*\:\s*(.*)/;
-export async function collections() {
+async function collections() {
     const result = await tfcmd(['vc', 'workspaces']);
     const lines = result.stdout.split('\n');
     const rval = [];
@@ -36,8 +36,7 @@ export async function collections() {
     return rval;
 }
 
-
-export async function tfsWorkingFolders() {
+async function workingFolders() {
     const tfsCollections = await collections();
 
     const workingFolders = [];
@@ -61,11 +60,11 @@ const reKeyValue = /(.*): (.*)/;
 export async function workspaces() {
     const tfsCollections = await collections();
 
-    const workspaces: IWorkspace[] = [];
+    const workspaces: ITFSWorkspaceInfo[] = [];
     for(const collectionUrl of tfsCollections) {
         const workspacesResult = await tfcmd(['vc', 'workspaces', '/format:detailed', '/collection:' + collectionUrl]);
 
-        let workspace: IWorkspace | null = null;
+        let workspace: ITFSWorkspaceInfo | null = null;
         const lines = workspacesResult.stdout.split('\n');
         for(const line of lines) {
             if(line.startsWith(' $') && workspace) {
@@ -87,7 +86,7 @@ export async function workspaces() {
                 workspace = {
                     workspace: val,
                     mappings: []
-                } as IWorkspace;
+                } as ITFSWorkspaceInfo;
                 workspaces.push(workspace);
             }
             else if(label) {
@@ -103,8 +102,8 @@ export async function workspaces() {
 }
 
 export async function inTFS(workspaceFolder: vscode.WorkspaceFolder) {
-    const workingFolders = await tfsWorkingFolders();
-    for(const workingFolder of workingFolders) {
+    const folders = await workingFolders();
+    for(const workingFolder of folders) {
         if(workspaceFolder.uri.fsPath.toLowerCase().startsWith(workingFolder.toLowerCase())) {
             return true;
         }
