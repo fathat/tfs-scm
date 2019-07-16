@@ -9,7 +9,7 @@
 	"displayName": "tfs-scm",
 	"description": "TFS Source Control",
 	"icon": "icons/icon.png",
-	"version": "0.0.7",
+	"version": "0.0.8",
 	"engines": {
 		"vscode": "^1.36.0"
 	},

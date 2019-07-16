@@ -42,6 +42,9 @@ This extension contributes the following settings:
 * Creating workspace mappings is not yet implemented -- view only
 
 ## Release Notes
+### 0.0.8
+* Don't show TFS mappings not relevant to current workspace
+
 ### 0.0.7
 * Much better support for multiple workspaces open at once, with multiple mappings per workspace.
 

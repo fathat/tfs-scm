@@ -2,6 +2,10 @@
 
 All notable changes to the "tfs-scm" extension will be documented in this file.
 
+## 0.0.8
+### Changes
+* Don't show TFS mappings not relevant to current workspace
+
 ## 0.0.7
 ### Added
 * Support for multiple workspaces open at once, with multiple mappings per workspace.
