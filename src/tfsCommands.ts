@@ -6,6 +6,7 @@ import { lstatSync, existsSync } from 'fs';
 import { findWorkspaceRoot } from './tfsUtil';
 import { TFSSourceControlManager } from './tfsSourceControlManager';
 import * as tfsOpenInBrowser from './tfsOpenInBrowser';
+import { TFSStatusItem } from './tfsRepository';
 
 export enum ActionModifiedWorkspace {
     Unmodified,
@@ -213,11 +214,11 @@ export async function discard(scm: TFSSourceControlManager, arg: any) {
             { title: "Cancel", isCloseAffordance: true }
           );
         
-        if (vscode.workspace.workspaceFolders && pick && pick.title === "Undo All") {
-            for(const workspaceFolder of vscode.workspace.workspaceFolders) {
-                let cmdArgs = ['undo', '.', '/noprompt', '/recursive'];
-                const result = await scm.cmd(cmdArgs, workspaceFolder.uri.fsPath);
-            }
+        console.log(arg);
+        console.log(scm);
+        if (pick && pick.title === "Undo All") {
+            let cmdArgs = ['undo', '.', '/noprompt', '/recursive'];
+            const result = await scm.cmd(cmdArgs, arg.rootUri.fsPath);
             vscode.window.setStatusBarMessage(`TFS: Changes undone.`);
             return ActionModifiedWorkspace.Modified;
         }
@@ -234,7 +235,7 @@ export async function discard(scm: TFSSourceControlManager, arg: any) {
 export async function include(scm: TFSSourceControlManager, arg: any) {
     try {
         const uri = getActionTargetUri(arg);
-        scm.includeFileInChangeset(uri.fsPath);        
+        scm.includeOne(uri.fsPath);        
         return ActionModifiedWorkspace.Unmodified;
     } catch (err) {
         vscode.window.showErrorMessage(err.message);
@@ -245,7 +246,7 @@ export async function include(scm: TFSSourceControlManager, arg: any) {
 export async function exclude(scm: TFSSourceControlManager, arg: any) {
     try {
         const uri = getActionTargetUri(arg);
-        scm.excludeFileFromChangeset(uri.fsPath);
+        scm.excludeOne(uri.fsPath);
         return ActionModifiedWorkspace.Unmodified;
     } catch (err) {
         vscode.window.showErrorMessage(err.message);
@@ -255,8 +256,11 @@ export async function exclude(scm: TFSSourceControlManager, arg: any) {
 
 export async function includeAll(scm: TFSSourceControlManager, arg: any) {
     try {
-        scm.includeAll();
-        return ActionModifiedWorkspace.Unmodified;
+        console.log(scm);
+        console.log(arg);
+        const resourceStates = (arg.resourceStates as TFSStatusItem[]);
+        scm.includeList(resourceStates);
+        return ActionModifiedWorkspace.Modified;
     } catch (err) {
         vscode.window.showErrorMessage(err.message);
         return ActionModifiedWorkspace.Unmodified;
@@ -265,8 +269,11 @@ export async function includeAll(scm: TFSSourceControlManager, arg: any) {
 
 export async function excludeAll(scm: TFSSourceControlManager, arg: any) {
     try {
-        scm.excludeAll();
-        return ActionModifiedWorkspace.Unmodified;
+        console.log(scm);
+        console.log(arg);
+        const resourceStates = (arg.resourceStates as TFSStatusItem[]);
+        scm.excludeList(resourceStates);
+        return ActionModifiedWorkspace.Modified;
     } catch (err) {
         vscode.window.showErrorMessage(err.message);
         return ActionModifiedWorkspace.Unmodified;

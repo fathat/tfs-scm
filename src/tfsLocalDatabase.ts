@@ -16,13 +16,17 @@ export class TFSLocalDatabase {
         this.data = context.workspaceState.get<TFSLocalData>("tfsdata") || new TFSLocalData();
     }
 
-    excludeAll(): void {
-        this.data.pendingChanges = [];
+    excludeList(changes: string[]): void {
+        this.data.pendingChanges = this.data.pendingChanges.filter(c => !changes.includes(c));
         this.write();
     }
 
-    includeAll(changes: string[]): void {
-        this.data.pendingChanges = changes;
+    includeList(changes: string[]): void {
+        for(const path of changes) {
+            if(!this.data.pendingChanges.includes(path)) {
+                this.data.pendingChanges.push(path);
+            }
+        }
         this.write();
     }
 

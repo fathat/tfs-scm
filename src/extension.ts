@@ -3,18 +3,20 @@ import * as commands from './tfsCommands';
 import * as tfsUtil from './tfsUtil';
 import { TFSSourceControlManager } from './tfsSourceControlManager';
 import * as tfsWorkspaceTree from './tfsWorkspaceTree';
+import { workspaces } from './tfsWorkspaceInfo';
 
 let scm: TFSSourceControlManager;
 let statusBarItem: vscode.StatusBarItem;
 
-export function activate(context: vscode.ExtensionContext) {
+export async function activate(context: vscode.ExtensionContext) {
 	const tfPath = vscode.workspace.getConfiguration("tfsSCM", null).get<string>("tfsPath");
     if (!tfPath) {
 		vscode.window.showErrorMessage(`tfs-scm path is not configured. Set path and restart vscode to use TFS.`);
 		return;
 	}
 	else {
-		scm = new TFSSourceControlManager(context);
+		const tfsWorkspaces = await workspaces();
+		scm = new TFSSourceControlManager(context, tfsWorkspaces);
 		scm.out.appendLine('TFS SCM is now active');
 
 		const workspaceTreeProvider = new tfsWorkspaceTree.TFSWorkspaceTreeProvider();

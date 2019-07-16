@@ -10,29 +10,29 @@ enum WorkspaceTreeItemKind {
     Mapping
 }
 
-interface ITFSWorkspaceItem {
+interface ITFSTreeItem {
     toString(): string;
 }
 
-export interface ITFSCollection extends ITFSWorkspaceItem {
+interface ITFSTreeCollection extends ITFSTreeItem {
     url: string;
 }
 
-export interface ITFSWorkspace extends ITFSWorkspaceItem  {
+interface ITFSTreeWorkspace extends ITFSTreeItem  {
     workspace: string;
     computer: string;
     owner: string;
 }
 
-export interface ITFSWorkspaceMapping extends ITFSWorkspaceItem  {
+interface ITFSTreeMapping extends ITFSTreeItem  {
     serverPath: string;
     localPath: string;
 }
 
-export interface ITFSWorkspaceTreeItem extends ITFSWorkspaceItem  {
+interface ITFSItem extends ITFSTreeItem  {
     kind: WorkspaceTreeItemKind;
-    data: ITFSWorkspaceItem;
-    children: ITFSWorkspaceTreeItem[];
+    data: ITFSTreeItem;
+    children: ITFSItem[];
 }
 
 const sampleRoots =  [{
@@ -132,7 +132,7 @@ async function workfold() {
 }
 
 async function workfoldOutputToTree(workspaces: IWorkfoldWorkspace[]) {
-    const collections: Map<string, ITFSWorkspaceTreeItem> = new Map<string, ITFSWorkspaceTreeItem>();
+    const collections: Map<string, ITFSItem> = new Map<string, ITFSItem>();
 
     for(const workspace of workspaces) {
         if(!workspace.collection) { continue; }
@@ -145,7 +145,7 @@ async function workfoldOutputToTree(workspaces: IWorkfoldWorkspace[]) {
                 data: {
                     url: workspace.collection
                 }
-            } as ITFSWorkspaceTreeItem;
+            } as ITFSItem;
             collections.set(workspace.collection, tfsCollectionTreeItem);
         } else {
             tfsCollectionTreeItem = collections.get(workspace.collection);
@@ -162,7 +162,7 @@ async function workfoldOutputToTree(workspaces: IWorkfoldWorkspace[]) {
                 owner: workspace.owner
             },
             children: []
-        } as ITFSWorkspaceTreeItem;
+        } as ITFSItem;
         tfsCollectionTreeItem.children.push(tfsWorkspaceTreeItem);
         
         for(const mapping of workspace.mappings) {
@@ -173,7 +173,7 @@ async function workfoldOutputToTree(workspaces: IWorkfoldWorkspace[]) {
                     localPath: mapping.localPath
                 },
                 children: []
-            } as ITFSWorkspaceTreeItem;
+            } as ITFSItem;
             tfsWorkspaceTreeItem.children.push(tfsMappingTreeItem);
         }
     }
@@ -185,12 +185,12 @@ async function workfoldOutputToTree(workspaces: IWorkfoldWorkspace[]) {
     return rval;
 }
 
-export class TFSWorkspaceTreeProvider implements vscode.TreeDataProvider<ITFSWorkspaceTreeItem> {
+export class TFSWorkspaceTreeProvider implements vscode.TreeDataProvider<ITFSItem> {
 
-    private _onDidChangeTreeData: vscode.EventEmitter<ITFSWorkspaceTreeItem | null | undefined> = new vscode.EventEmitter<ITFSWorkspaceTreeItem | null | undefined>();
-    readonly onDidChangeTreeData: vscode.Event<ITFSWorkspaceTreeItem | null | undefined> = this._onDidChangeTreeData.event;
+    private _onDidChangeTreeData: vscode.EventEmitter<ITFSItem | null | undefined> = new vscode.EventEmitter<ITFSItem | null | undefined>();
+    readonly onDidChangeTreeData: vscode.Event<ITFSItem | null | undefined> = this._onDidChangeTreeData.event;
     
-    roots: ITFSWorkspaceTreeItem[];
+    roots: ITFSItem[];
 
     constructor() { 
         this.roots = []; //set to sampleRoots for screenshots
@@ -206,14 +206,14 @@ export class TFSWorkspaceTreeProvider implements vscode.TreeDataProvider<ITFSWor
             });
     }
     
-    getTreeItem(element: ITFSWorkspaceTreeItem): vscode.TreeItem | Thenable<vscode.TreeItem> {
+    getTreeItem(element: ITFSItem): vscode.TreeItem | Thenable<vscode.TreeItem> {
         const collapsibleState = element.children.length > 0 
             ? vscode.TreeItemCollapsibleState.Expanded 
             : vscode.TreeItemCollapsibleState.None;
         
         switch(element.kind) {
             case WorkspaceTreeItemKind.Collection: {
-                const data = (element.data as ITFSCollection);
+                const data = (element.data as ITFSTreeCollection);
                 let item = new vscode.TreeItem(data.url, collapsibleState);
                 item.iconPath = {
                     light: path.join(__filename, '..', '..', 'icons', 'light', 'collection.svg'),
@@ -223,7 +223,7 @@ export class TFSWorkspaceTreeProvider implements vscode.TreeDataProvider<ITFSWor
             }
             case WorkspaceTreeItemKind.Workspace: {
                 let item = new vscode.TreeItem(
-                    (element.data as ITFSWorkspace).workspace, 
+                    (element.data as ITFSTreeWorkspace).workspace, 
                     collapsibleState);
                 item.iconPath = {
                     light: path.join(__filename, '..', '..', 'icons', 'light', 'workspace.svg'),
@@ -233,7 +233,7 @@ export class TFSWorkspaceTreeProvider implements vscode.TreeDataProvider<ITFSWor
             }
                 
             case WorkspaceTreeItemKind.Mapping:{
-                const mapping = element.data as ITFSWorkspaceMapping;
+                const mapping = element.data as ITFSTreeMapping;
                 const lp = mapping.localPath;
                 const sp = mapping.serverPath;
                 let item = new vscode.TreeItem(
@@ -249,7 +249,7 @@ export class TFSWorkspaceTreeProvider implements vscode.TreeDataProvider<ITFSWor
         return new vscode.TreeItem(element.data.toString(), element.children.length ? vscode.TreeItemCollapsibleState.Expanded : vscode.TreeItemCollapsibleState.None);
     }
 
-    getChildren(element?: ITFSWorkspaceTreeItem | undefined): vscode.ProviderResult<ITFSWorkspaceTreeItem[]> {
+    getChildren(element?: ITFSItem | undefined): vscode.ProviderResult<ITFSItem[]> {
         return element ? element.children : this.roots;
     }
 }

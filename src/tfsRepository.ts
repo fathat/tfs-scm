@@ -75,12 +75,12 @@ export class TFSStatusItem implements SourceControlResourceState {
 	}
 }
 
-export class TFSRepository {
+export class TFSRepositoryView {
 
-	constructor(private workspaceFolder: WorkspaceFolder) { }
+	constructor(private localRoot: string) { }
 	
 	public async provideStatus() {
-		const result = await tfcmd(["stat", "/format:detailed"], this.workspaceFolder.uri.fsPath);
+		const result = await tfcmd(["stat", "/format:detailed"], this.localRoot);
 		const lines = result.stdout.split('\r\n');
 
 		let statusItems: TFSStatusItem[] = [];
@@ -153,6 +153,6 @@ export class TFSRepository {
 			));
 		}
 
-		return statusItems;
+		return statusItems.filter(x => x.resourceUri.fsPath.toLowerCase().startsWith(this.localRoot.toLowerCase()));
 	}
 }

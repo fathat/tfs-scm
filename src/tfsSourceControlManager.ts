@@ -1,50 +1,64 @@
-import { TFSWorkspace } from "./tfsSourceControl";
+import { TFSWorkspaceMapping } from "./tfsSourceControl";
 import * as vscode from 'vscode';
 import * as cpp from "child-process-promise";
 import { TFSDocumentContentProvider } from "./tfsDocumentContentProvider";
 import { TFSLocalDatabase, StateChange } from "./tfsLocalDatabase";
-import { scryptSync } from "crypto";
+import { IWorkspace } from "./tfsWorkspaceInfo";
+import { TFSStatusItem } from "./tfsRepository";
 
 export class TFSSourceControlManager {
 
-    tfs: TFSWorkspace;
+    workspace: TFSWorkspaceMapping[] = [];
 
     public out: vscode.OutputChannel;
     public documentContentProvider: TFSDocumentContentProvider;
     public database: TFSLocalDatabase;
 
-    constructor(private context: vscode.ExtensionContext) {
+    constructor(private context: vscode.ExtensionContext, workspaces: IWorkspace[]) {
 
         this.database = new TFSLocalDatabase(context);
         this.documentContentProvider = new TFSDocumentContentProvider();
-        this.tfs = new TFSWorkspace(context, this.database);
 
+        for(const wks of workspaces) {
+            for(const mapping of wks.mappings) {
+                this.workspace.push(new TFSWorkspaceMapping(context, wks, mapping, this.database));
+            }
+        }        
         context.subscriptions.push(vscode.workspace.registerTextDocumentContentProvider('tfs', this.documentContentProvider));
 
         this.out = vscode.window.createOutputChannel('TFS');
     }
 
-    excludeFileFromChangeset(path: string): void {
+    excludeOne(path: string): void {
         const wasModified = this.database.excludeFileFromChangeset(path);
         if(wasModified === StateChange.Modified) {
-            this.tfs.update();
+            for(const wks of this.workspace) {
+                wks.update();
+            }
         }
     }    
     
-    includeFileInChangeset(path: string): void {
+    includeOne(path: string): void {
         const wasModified = this.database.includeFileInChangeset(path);
         if(wasModified === StateChange.Modified) {
-            this.tfs.update();
+            for(const wks of this.workspace) {
+                wks.update();
+            }
         }
     }
 
-    includeAll(): void {
-        this.tfs.includeAll();
+    includeList(items: TFSStatusItem[]): void {
+        this.database.includeList(items.map(item => item.resourceUri.fsPath));
+        for(const wks of this.workspace) {
+            wks.update();
+        }
     }
 
-    excludeAll(): void {
-        this.database.excludeAll();
-        this.tfs.excludeAll();
+    excludeList(items: TFSStatusItem[]): void {
+        this.database.excludeList(items.map(item => item.resourceUri.fsPath));
+        for(const wks of this.workspace) {
+            wks.update();
+        }
     }
 
     async cmd(args: string[], cwd?: string) {
@@ -70,6 +84,8 @@ export class TFSSourceControlManager {
     }
 
     refresh() {
-        this.tfs.update();
+        for(const wks of this.workspace) {
+            wks.update();
+        }
     }
 }
