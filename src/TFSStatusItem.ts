@@ -1,5 +1,7 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
+import * as fs from 'fs';
+import { extPath } from './tfsUtil';
 
 function iconForChangeType(changetype: string) {
 	let iconType = null;
@@ -14,13 +16,13 @@ function iconForChangeType(changetype: string) {
 			iconType = "status-modified";
 			break;
 	}
-
+	
 	return iconType === null ? null : {
 		dark: {
-			iconPath: path.join(__filename, '..', '..', 'icons', `${iconType}.svg`)
+			iconPath: path.join(extPath(), 'icons', `${iconType}.svg`)
 		},
 		light: {
-			iconPath: path.join(__filename, '..', '..', 'icons', `${iconType}.svg`)
+			iconPath: path.join(extPath(), 'icons', `${iconType}.svg`)
 		}
 	};
 }

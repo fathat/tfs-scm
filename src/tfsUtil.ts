@@ -1,6 +1,22 @@
 import * as fs from 'fs';
 import * as vscode from 'vscode';
 
+let extpath: string | null = null;
+
+export function extPath() {
+    if(!extpath) {
+    	const ext = vscode.extensions.getExtension('qcs.tfs-scm');
+    	if(ext) {
+		    extpath = ext.extensionPath;
+        }
+        else {
+            console.error("Could not read extension path");
+            extpath = __dirname;
+        }
+    }
+    return extpath;
+}
+
 export function findWorkspaceRoot(uri: vscode.Uri) {
     if (vscode.workspace.workspaceFolders) {
         for (const workspaceFolder of vscode.workspace.workspaceFolders) {

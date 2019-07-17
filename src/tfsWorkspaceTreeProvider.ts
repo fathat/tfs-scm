@@ -3,6 +3,7 @@ import * as path from 'path';
 import { tfcmd } from './tfsCmd';
 import { promises } from 'dns';
 import { stringify } from 'querystring';
+import { extPath } from './tfsUtil';
 
 enum WorkspaceTreeItemKind {
     Collection,
@@ -216,8 +217,8 @@ export class TFSWorkspaceTreeProvider implements vscode.TreeDataProvider<ITFSIte
                 const data = (element.data as ITFSTreeCollection);
                 let item = new vscode.TreeItem(data.url, collapsibleState);
                 item.iconPath = {
-                    light: path.join(__filename, '..', '..', 'icons', 'light', 'collection.svg'),
-                    dark: path.join(__filename, '..', '..', 'icons', 'dark', 'collection.svg')
+                    light: path.join(extPath(), 'icons', 'light', 'collection.svg'),
+                    dark: path.join(extPath(), 'icons', 'dark', 'collection.svg')
                 };
                 return item;
             }
@@ -226,8 +227,8 @@ export class TFSWorkspaceTreeProvider implements vscode.TreeDataProvider<ITFSIte
                     (element.data as ITFSTreeWorkspace).workspace, 
                     collapsibleState);
                 item.iconPath = {
-                    light: path.join(__filename, '..', '..', 'icons', 'light', 'workspace.svg'),
-                    dark: path.join(__filename, '..', '..', 'icons', 'dark', 'workspace.svg')
+                    light: path.join(extPath(), 'icons', 'light', 'workspace.svg'),
+                    dark: path.join(extPath(), 'icons', 'dark', 'workspace.svg')
                 };
                 return item;
             }
@@ -240,8 +241,8 @@ export class TFSWorkspaceTreeProvider implements vscode.TreeDataProvider<ITFSIte
                     `${lp} ⇔ ${sp}`);
                 
                 item.iconPath = {
-                    light: path.join(__filename, '..', '..', 'icons', 'light', 'map.svg'),
-                    dark: path.join(__filename, '..', '..', 'icons', 'dark', 'map.svg')
+                    light: path.join(extPath(), 'icons', 'light', 'map.svg'),
+                    dark: path.join(extPath(), 'icons', 'dark', 'map.svg')
                 };
                 return item;
             }
