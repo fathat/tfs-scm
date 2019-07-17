@@ -42,6 +42,10 @@ This extension contributes the following settings:
 * Creating workspace mappings is not yet implemented -- view only
 
 ## Release Notes
+
+### 0.0.9
+* Switch to webpack to make extension smaller/faster
+
 ### 0.0.8
 * Don't show TFS mappings not relevant to current workspace
 

@@ -2,6 +2,11 @@
 
 All notable changes to the "tfs-scm" extension will be documented in this file.
 
+## 0.0.9
+
+### Changes
+* Switch to webpack to make extension smaller/faster
+
 ## 0.0.8
 ### Changes
 * Don't show TFS mappings not relevant to current workspace
