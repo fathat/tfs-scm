@@ -43,6 +43,9 @@ This extension contributes the following settings:
 
 ## Release Notes
 
+### 0.0.10
+* Added a hack to make checkout on save work again.
+
 ### 0.0.9
 * Switch to webpack to make extension smaller/faster
 

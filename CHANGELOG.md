@@ -2,8 +2,11 @@
 
 All notable changes to the "tfs-scm" extension will be documented in this file.
 
-## 0.0.9
+## 0.0.10
+### Added
+* Added a hack to make checkout on save work again.
 
+## 0.0.9
 ### Changes
 * Switch to webpack to make extension smaller/faster
 
