@@ -4,6 +4,7 @@ import * as tfsUtil from './tfsUtil';
 import { TFSSourceControlManager } from './tfsSourceControlManager';
 import * as tfsWorkspaceTree from './tfsWorkspaceTreeProvider';
 import { workspaces } from './tfsWorkspaceInfo';
+import * as fs from 'fs';
 
 let scm: TFSSourceControlManager;
 let statusBarItem: vscode.StatusBarItem;
@@ -22,14 +23,26 @@ export async function activate(context: vscode.ExtensionContext) {
 		const workspaceTreeProvider = new tfsWorkspaceTree.TFSWorkspaceTreeProvider();
 		vscode.window.registerTreeDataProvider('tfs-workspaces', workspaceTreeProvider);
 	
+		
 		// Auto checkout files if they're not writeable on save
 		vscode.workspace.onWillSaveTextDocument((e: vscode.TextDocumentWillSaveEvent) => {
 			if(e.document.isDirty && !e.document.isUntitled) {
 				e.waitUntil(new Promise((resolve, reject) => {
 					if(!tfsUtil.isWritable(e.document.uri.fsPath)) {
-						commands.executeAction(scm, (scm: TFSSourceControlManager) => commands.checkout(scm, e.document.uri))
-								.then(() => resolve())
+
+						/* This is gross, but neccessary. Mark the file as writeable, then
+						save, THEN checkout. The reason: checkout might take longer than
+						1.5 seconds, and if it does, vscode will disable this event
+						for future saves.
+						*/
+						fs.chmod(e.document.uri.fsPath, 0o755, (err) => {
+							resolve();
+							commands.executeAction(scm, (scm: TFSSourceControlManager) => commands.checkout(scm, e.document.uri))
+								.then(() => {
+									vscode.window.showInformationMessage(`${e.document.uri.fsPath} checked out for write.`);
+								})
 								.catch((err) => reject(err));
+						});
 					}
 				}));
 			}
