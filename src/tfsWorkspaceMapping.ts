@@ -1,4 +1,5 @@
 import * as vscode from 'vscode';
+import * as path from 'path';
 import { TFSRepositoryView, TFS_SCHEME } from './tfsRepositoryView';
 import { TFSStatusItem } from "./TFSStatusItem";
 import { Uri, ProviderResult, QuickDiffProvider, Disposable } from 'vscode';
@@ -13,6 +14,10 @@ export class TFSWorkspaceMapping implements Disposable, QuickDiffProvider {
     private excludedChanges: vscode.SourceControlResourceGroup;
     private mappings: TFSRepositoryView[] = [];
 
+    private fileSystemWatcher: vscode.FileSystemWatcher;
+    
+    private isUpdating: boolean = false;
+
     provideOriginalResource?(uri: Uri, token: vscode.CancellationToken): ProviderResult<Uri> {
 		let path = uri.fsPath;
 		return Uri.parse(`${TFS_SCHEME}:${path}`);
@@ -25,11 +30,13 @@ export class TFSWorkspaceMapping implements Disposable, QuickDiffProvider {
         this.scm.inputBox.placeholder = 'Commit message goes here';
         context.subscriptions.push(this.scm);
         
-        let fileSystemWatcher = vscode.workspace.createFileSystemWatcher(new vscode.RelativePattern(mapping.localPath, "**/*"));            
+        this.fileSystemWatcher = vscode.workspace.createFileSystemWatcher("**/*");
         this.mappings.push(new TFSRepositoryView(mapping.localPath));
-        fileSystemWatcher.onDidChange(uri => this.onResourceChange(uri), context.subscriptions);
-        fileSystemWatcher.onDidCreate(uri => this.onResourceCreate(uri), context.subscriptions);
-        fileSystemWatcher.onDidDelete(uri => this.onResourceDelete(uri), context.subscriptions);
+        this.fileSystemWatcher.onDidChange(uri =>{ 
+            this.onResourceChange(uri);
+        }, context.subscriptions);
+        this.fileSystemWatcher.onDidCreate(uri => this.onResourceCreate(uri), context.subscriptions);
+        this.fileSystemWatcher.onDidDelete(uri => this.onResourceDelete(uri), context.subscriptions);
                 
         this.update();
     }
@@ -47,9 +54,14 @@ export class TFSWorkspaceMapping implements Disposable, QuickDiffProvider {
     }
 
     update() {
+        if(this.isUpdating) {
+            return;
+        }
+        this.isUpdating = true;
         this.status().then((items: TFSStatusItem[]) => {
             this.updateChanges(items);
-        });
+            this.isUpdating = false;
+        });         
     }
     
 

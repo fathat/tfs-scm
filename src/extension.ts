@@ -36,12 +36,19 @@ export async function activate(context: vscode.ExtensionContext) {
 						for future saves.
 						*/
 						fs.chmod(e.document.uri.fsPath, 0o755, (err) => {
-							resolve();
+							if(err) {
+								reject(err);
+							} else {
+								resolve();
+							}
+
 							commands.executeAction(scm, (scm: TFSSourceControlManager) => commands.checkout(scm, e.document.uri))
 								.then(() => {
 									vscode.window.showInformationMessage(`${e.document.uri.fsPath} checked out for write.`);
 								})
-								.catch((err) => reject(err));
+								.catch((err) => {
+									vscode.window.showErrorMessage(`${e.document.uri.fsPath} could not be checked out.`);
+								});
 						});
 					}
 				}));
