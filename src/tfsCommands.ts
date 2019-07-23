@@ -121,6 +121,7 @@ export async function open(scm: TFSSourceControlManager, arg: any) {
 export async function openRemoteDiff(scm: TFSSourceControlManager, arg: any) {
     try {
         let local = getActionTargetUri(arg);
+        const name = path.basename(local.fsPath);
         const remote = Uri.parse(`tfs:${local.fsPath.replace('\\', '/')}`);
         const opts: vscode.TextDocumentShowOptions = {
             preserveFocus: false,
@@ -132,9 +133,9 @@ export async function openRemoteDiff(scm: TFSSourceControlManager, arg: any) {
             if (!existsSync(local.fsPath)) {
                 local = Uri.parse(`tfs:null`);
             }
-
+            
             await vscode.workspace.openTextDocument(remote);
-            await commands.executeCommand<void>('vscode.diff', remote, local, undefined, opts);
+            await commands.executeCommand<void>('vscode.diff', remote, local, `Diff: ${name}`, opts);
         } catch (err) {
             await commands.executeCommand<void>('vscode.open', local, undefined, opts);
         }

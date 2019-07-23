@@ -43,6 +43,10 @@ This extension contributes the following settings:
 
 ## Release Notes
 
+### 0.0.12
+* Fix multiple roots sometimes matching
+* Fix diff names being too long
+
 ### 0.0.11
 * Fix high resource usage on large amounts of files being generated/deleted/updated
 

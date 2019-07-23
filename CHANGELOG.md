@@ -2,6 +2,11 @@
 
 All notable changes to the "tfs-scm" extension will be documented in this file.
 
+## 0.0.12
+### Changes
+* Fix multiple roots sometimes matching
+* Fix diff names being too long
+
 ## 0.0.11
 ### Changes
 * Fix high resource usage on large amounts of files being generated/deleted/updated
