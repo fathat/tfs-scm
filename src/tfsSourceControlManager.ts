@@ -27,7 +27,9 @@ export class TFSSourceControlManager {
 
                 if(vscode.workspace.workspaceFolders) {
                     for(const vscodeWorkspace of vscode.workspace.workspaceFolders) {
-                        if(vscodeWorkspace.uri.fsPath.toLowerCase().startsWith(mapping.localPath.toLowerCase())) {
+                        const wkspacePath = `${vscodeWorkspace.uri.fsPath.toLowerCase().replace(/\\/g, '/')}/`;
+                        const mappingPath = `${mapping.localPath.toLowerCase().replace(/\\/g, '/')}/`;
+                        if(wkspacePath.startsWith(mappingPath)) {
                             workspaceIsSubfolderOfTFSMapping = true;
                         }
                     }
