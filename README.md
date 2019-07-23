@@ -43,6 +43,9 @@ This extension contributes the following settings:
 
 ## Release Notes
 
+### 0.0.11
+* Fix high resource usage on large amounts of files being generated/deleted/updated
+
 ### 0.0.10
 * Added a hack to make checkout on save work again.
 

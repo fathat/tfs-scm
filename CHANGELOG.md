@@ -2,6 +2,10 @@
 
 All notable changes to the "tfs-scm" extension will be documented in this file.
 
+## 0.0.11
+### Changes
+* Fix high resource usage on large amounts of files being generated/deleted/updated
+
 ## 0.0.10
 ### Added
 * Added a hack to make checkout on save work again.
