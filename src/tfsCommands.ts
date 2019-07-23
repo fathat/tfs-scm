@@ -137,7 +137,7 @@ export async function openRemoteDiff(scm: TFSSourceControlManager, arg: any) {
             await vscode.workspace.openTextDocument(remote);
             await commands.executeCommand<void>('vscode.diff', remote, local, `Diff: ${name}`, opts);
         } catch (err) {
-            await commands.executeCommand<void>('vscode.open', local, undefined, opts);
+            await commands.executeCommand<void>('vscode.open', local, opts);
         }
 
     } catch (err) {
