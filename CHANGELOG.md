@@ -2,6 +2,14 @@
 
 All notable changes to the "tfs-scm" extension will be documented in this file.
 
+## 0.1.0
+
+### Added
+* Support for checkins (experimental!!)
+
+### Fixed
+* Sometimes "included changes" changes would be duplicated in other mappings if path names had same root but different folders (C:\Projects\test\ and C:\Projects\testandsomestuff\ for example)
+
 ## 0.0.12
 ### Changes
 * Fix multiple roots sometimes matching

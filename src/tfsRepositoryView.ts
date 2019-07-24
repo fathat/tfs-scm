@@ -1,6 +1,5 @@
-import { QuickDiffProvider, WorkspaceFolder, CancellationToken, ProviderResult, Uri, workspace } from "vscode";
+import { Uri, workspace } from "vscode";
 import { tfcmd } from "./tfsCmd";
-import * as vscode from 'vscode';
 import { TFSStatusItem } from "./TFSStatusItem";
 
 export const TFS_SCHEME = 'tfs';
@@ -89,6 +88,7 @@ export class TFSRepositoryView {
 			));
 		}
 
-		return statusItems.filter(x => x.resourceUri.fsPath.toLowerCase().startsWith(this.localRoot.toLowerCase()));
+		const localRootDir = this.localRoot.toLowerCase().replace(/\\/g, '/') + '/';
+		return statusItems.filter(x => x.resourceUri.fsPath.toLowerCase().replace(/\\/g, '/').startsWith(localRootDir));
 	}
 }

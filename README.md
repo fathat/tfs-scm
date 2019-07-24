@@ -37,11 +37,13 @@ This extension contributes the following settings:
 
 * Windows only at the moment.
 * No git support -- TFVC only (VSCode git support is already great!)
-* Commit is not yet implemented
 * Branch/merge is not yet implemented
 * Creating workspace mappings is not yet implemented -- view only
 
 ## Release Notes
+
+### 0.1.0
+* Support for checkins
 
 ### 0.0.12
 * Fix multiple roots sometimes matching

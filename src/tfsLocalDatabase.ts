@@ -53,6 +53,10 @@ export class TFSPendingChangesDatabase {
         return this.data.pendingChanges.includes(path);
     }
 
+    getIncludedChanges() : string[] {
+        return this.data.pendingChanges.slice(0);
+    }
+
     write() {
         return this.context.workspaceState.update("tfsdata", this.data);
     }

@@ -1,5 +1,4 @@
 import * as vscode from 'vscode';
-import * as path from 'path';
 import { TFSRepositoryView, TFS_SCHEME } from './tfsRepositoryView';
 import { TFSStatusItem } from "./TFSStatusItem";
 import { Uri, ProviderResult, QuickDiffProvider, Disposable } from 'vscode';
@@ -39,6 +38,18 @@ export class TFSWorkspaceMapping implements Disposable, QuickDiffProvider {
         this.fileSystemWatcher.onDidDelete(uri => this.onResourceDelete(uri), context.subscriptions);
                 
         this.update();
+    }
+
+    getSCMHandle() {
+        return (this.scm as any).handle;
+    }
+
+    getMappingInfo() {
+        return this.mapping;
+    }
+
+    getIncludedChanges() {
+        return this.includedChanges;
     }
 
     async status() {

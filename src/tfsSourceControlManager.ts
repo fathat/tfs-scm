@@ -63,6 +63,48 @@ export class TFSSourceControlManager {
         }
     }
 
+    getWorkspaceMappingBySCMHandle(handle: string) {
+        for(const mapping of this.workspace) {
+            if(mapping.getSCMHandle() === handle) {
+                return mapping;
+            }
+        }
+        throw new Error(`Could not find workspace with ${handle}`);
+    }
+
+    async checkin(workspaceMapping: TFSWorkspaceMapping, comment: string) {
+        //formulate a checkin commands
+        let cmdArgs: string[] = ['vc', 'checkin'];
+
+        if(!comment) {
+            throw new Error("No comment specified!");
+        }
+
+        const includedResources = workspaceMapping.getIncludedChanges();
+
+        if(includedResources.resourceStates.length < 1) {
+            throw new Error("No included changes to check in");
+        }
+
+        // cut to relative path to save command line space
+        const cwd = workspaceMapping.getMappingInfo().localPath;
+        const rootLength = cwd.length + 1; // + 1 for "/"
+        const relativePaths = includedResources.resourceStates.map(state => '"' + state.resourceUri.fsPath.substr(rootLength) + '"');
+
+        //sanitize
+        comment = comment.replace(/\"/g, "'");
+
+        cmdArgs.push(`/comment:"${comment}"`);
+       
+        cmdArgs = cmdArgs.concat(relativePaths);
+        const cmd = cmdArgs.join(' ');
+        console.log(cmd);
+
+        const tfPath = vscode.workspace.getConfiguration("tfsSCM", null).get<string>("tfsPath");
+
+        await this.exec(`"${tfPath}" ${cmd}`, cwd);
+    }
+
     includeList(items: TFSStatusItem[]): void {
         this.database.includeList(items.map(item => item.resourceUri.fsPath));
         for(const wks of this.workspace) {
@@ -74,6 +116,23 @@ export class TFSSourceControlManager {
         this.database.excludeList(items.map(item => item.resourceUri.fsPath));
         for(const wks of this.workspace) {
             wks.update();
+        }
+    }
+
+    async exec(cmd: string, cwd?: string) {
+        try {
+            let result: cpp.PromiseResult<string>;
+            if (cwd) {
+                result = await cpp.exec(cmd, { capture: ["stdout", "stderr"], cwd });
+            } else {
+                result = await cpp.exec(cmd, { capture: ["stdout", "stderr"] });
+            }
+            this.out.append(result.stdout);
+            this.out.append(result.stderr);
+            return result;
+        }
+        catch (err) {
+            throw err.stderr ? new Error(err.stderr) : err;
         }
     }
 
