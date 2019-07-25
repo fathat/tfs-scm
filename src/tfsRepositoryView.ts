@@ -1,4 +1,4 @@
-import { Uri, workspace } from "vscode";
+import { Uri, workspace, TreeItem } from "vscode";
 import { tfcmd } from "./tfsCmd";
 import { TFSStatusItem } from "./TFSStatusItem";
 
@@ -6,9 +6,9 @@ export const TFS_SCHEME = 'tfs';
 
 const reServerPathWithChangeset = /^\$(.*)/;
 const reServerPath = /^\$(.*);(\S+)?/;
-const reLocalFilePath = /^  Local item : \[.*\] (.*)/;
-const reChangeType = /^  Change\s+: (.*)/;
-const reWorkspace = /^  Workspace\s+: (.*)/;
+const reLocalFilePath = /^\s*Local item\s*:\s*\[.*\]\s*(.*)/;
+const reChangeType = /^\s*Change\s*:\s*(.*)/;
+const reWorkspace = /^\s*Workspace\s*:\s*(.*)/;
 
 export class TFSRepositoryView {
 
@@ -16,7 +16,7 @@ export class TFSRepositoryView {
 	
 	public async provideStatus() {
 		const result = await tfcmd(["stat", "/format:detailed"], this.localRoot);
-		const lines = result.stdout.split('\r\n');
+		const lines = result.stdout.split('\r\n').map(l => l.trim());
 
 		let statusItems: TFSStatusItem[] = [];
 
@@ -37,14 +37,20 @@ export class TFSRepositoryView {
 							currentStatusItem.serverpath,
 							currentStatusItem.changetype,
 							currentStatusItem.workspace,
-							currentStatusItem.changeset
+							currentStatusItem.changeset,
+							currentStatusItem.source
 						));
 					}
 					currentStatusItem = { serverpath, changeset, inworkspace: false };
 				}
 			}
 
-			if (line.startsWith('  Local item :')) {
+			if (line.startsWith('Source item')) {
+				const [label, sourcePath] = line.split(':').map(x => x.trim());
+				currentStatusItem.source = sourcePath;
+			}
+
+			if (line.startsWith('Local item')) {
 				let [, path] = reLocalFilePath.exec(line) || [null, null];
 
 				if (path) {
@@ -61,7 +67,7 @@ export class TFSRepositoryView {
 				}
 			}
 
-			if (line.startsWith('  Change')) {
+			if (line.startsWith('Change')) {
 				let [, changetype] = reChangeType.exec(line) || [null, null];
 
 				if (changetype) {
@@ -69,7 +75,7 @@ export class TFSRepositoryView {
 				}
 			}
 
-			if (line.startsWith('  Workspace')) {
+			if (line.startsWith('Workspace')) {
 				let [, workspace] = reWorkspace.exec(line) || [null, null];
 
 				if (workspace) {
@@ -84,7 +90,8 @@ export class TFSRepositoryView {
 				currentStatusItem.serverpath,
 				currentStatusItem.changetype,
 				currentStatusItem.workspace,
-				currentStatusItem.changeset
+				currentStatusItem.changeset,
+				currentStatusItem.source
 			));
 		}
 

@@ -15,6 +15,12 @@ function iconForChangeType(changetype: string) {
 		case "edit":
 			iconType = "status-modified";
 			break;
+		case "rename":
+			iconType = "status-rename";
+			break;
+		case "rename, edit":
+			iconType = "status-rename-edit";
+			break;
 	}
 	
 	return iconType === null ? null : {
@@ -41,12 +47,18 @@ class TFSDiffWithServerCommand implements vscode.Command {
 export class TFSStatusItem implements vscode.SourceControlResourceState {
 	public command?: vscode.Command | undefined;
 	public decorations?: vscode.SourceControlResourceDecorations | undefined;
-	constructor(public resourceUri: vscode.Uri, public serverpath: string, public changetype: string, public workspace: string, public changeset: string) {
+	constructor(public resourceUri: vscode.Uri, public serverpath: string, public changetype: string, public workspace: string, public changeset: string, public source: string) {
 		this.command = new TFSDiffWithServerCommand([resourceUri]);
 		let icon = iconForChangeType(this.changetype);
+		let tooltip = changetype;
+
+		if(changetype === 'rename' || changetype === 'rename, edit') {
+			tooltip = `${tooltip} from ${source}`;
+		}
+		
 		this.decorations = {
 			strikeThrough: changetype === 'delete',
-			tooltip: changetype
+			tooltip
 		};
 		if (icon) {
 			Object.assign(this.decorations, icon);

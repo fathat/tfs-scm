@@ -42,6 +42,9 @@ This extension contributes the following settings:
 
 ## Release Notes
 
+### 0.2.0
+* Icons for renames and rename-edits
+
 ### 0.1.0
 * Support for checkins
 
