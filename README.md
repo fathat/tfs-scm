@@ -50,6 +50,9 @@ This extension contributes the following settings:
 
 ## Release Notes
 
+### 0.3.2
+* Fix issue where checkin would sometimes error because of missing UI info.
+
 ### 0.3.1
 * Only checkout files in SCM.
 
@@ -97,4 +100,4 @@ This extension contributes the following settings:
 
 ### 0.0.2
 
-Placed on github! Does some things.
+* Placed on github! Does some things.

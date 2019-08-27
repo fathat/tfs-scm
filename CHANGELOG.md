@@ -2,6 +2,11 @@
 
 All notable changes to the "tfs-scm" extension will be documented in this file.
 
+## 0.3.2
+
+### Fixed
+* Fix issue where checkin would sometimes error because of missing UI info.
+
 ## 0.3.1
 
 ### Fixed

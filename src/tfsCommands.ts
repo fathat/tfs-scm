@@ -149,11 +149,18 @@ export async function openRemoteDiff(scm: TFSSourceControlManager, arg: any) {
 
 export async function checkin(scm: TFSSourceControlManager, arg: any) {
     try {
-        const scmHandle = arg.handle;
-        const workspaceMapping = scm.getWorkspaceMappingBySCMHandle(scmHandle);       
-        await scm.checkin(workspaceMapping, arg.inputBox.value);
-        arg.inputBox.value = '';
-        vscode.window.showInformationMessage('Checkin complete!');
+        if(typeof arg === 'undefined') {
+            await scm.checkinAll();
+            vscode.window.showInformationMessage('Checkin complete!');
+        }
+        else {
+            const scmHandle = arg.handle;
+            const workspaceMapping = scm.getWorkspaceMappingBySCMHandle(scmHandle);       
+            await scm.checkin(workspaceMapping, arg.inputBox.value);
+            arg.inputBox.value = '';
+            vscode.window.showInformationMessage('Checkin complete!');
+        }
+        
         return ActionModifiedWorkspace.Modified;
     } catch (err) {
         vscode.window.showErrorMessage(err.message);

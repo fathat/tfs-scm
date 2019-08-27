@@ -44,6 +44,10 @@ export class TFSWorkspaceMapping implements Disposable, QuickDiffProvider {
         return (this.scm as any).handle;
     }
 
+    commitMessage() {
+        return this.scm.inputBox.value;
+    }
+
     getMappingInfo() {
         return this.mapping;
     }

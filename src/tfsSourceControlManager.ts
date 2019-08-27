@@ -75,6 +75,12 @@ export class TFSSourceControlManager {
         throw new Error(`Could not find workspace with ${handle}`);
     }
 
+    async checkinAll() {
+        for(const mapping of this.workspace) {
+            await this.checkin(mapping.getSCMHandle(), mapping.commitMessage());
+        }
+    }
+
     async checkin(workspaceMapping: TFSWorkspaceMapping, comment: string) {
         //formulate a checkin commands
         let cmdArgs: string[] = ['vc', 'checkin'];
