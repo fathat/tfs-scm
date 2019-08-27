@@ -16,6 +16,8 @@ export async function activate(context: vscode.ExtensionContext) {
 		return;
 	}
 	else {
+		let shouldAskForCheckout: any = {};
+
 		const tfsWorkspaces = await workspaces();
 		scm = new TFSSourceControlManager(context, tfsWorkspaces);
 		scm.out.appendLine('TFS SCM is now active');
@@ -23,7 +25,45 @@ export async function activate(context: vscode.ExtensionContext) {
 		const workspaceTreeProvider = new tfsWorkspaceTree.TFSWorkspaceTreeProvider();
 		vscode.window.registerTreeDataProvider('tfs-workspaces', workspaceTreeProvider);
 	
+		vscode.workspace.textDocuments.forEach(doc => {
+			if(!tfsUtil.isWritable(doc.uri.fsPath)) {
+				let isinscm = scm.isInSCM(doc.uri.fsPath).then(isinscm => {
+					shouldAskForCheckout[doc.uri.fsPath] = true;
+				});
+			}
+		});
+
+		vscode.workspace.onDidOpenTextDocument(async (e) => {
+			if(!e.isUntitled) {
+				//check if it's checked out
+				if(!tfsUtil.isWritable(e.uri.fsPath)) {
+					let isinscm = await scm.isInSCM(e.uri.fsPath);
+					if(isinscm) {
+						shouldAskForCheckout[e.uri.fsPath] = true;
+					}
+				}
+			}
+		});
 		
+		vscode.workspace.onDidChangeTextDocument(async (e) => {
+			if(e.document.isDirty && !e.document.isUntitled) {
+				if(shouldAskForCheckout[e.document.uri.fsPath]){
+					//prompt for check out
+					delete shouldAskForCheckout[e.document.uri.fsPath];
+					let action = await vscode.window.showInformationMessage(`${e.document.fileName} is read-only, checkout?`, "Checkout", "Ignore");
+					if(action === "Checkout") {
+						commands.executeAction(scm, (scm: TFSSourceControlManager) => commands.checkout(scm, e.document.uri))
+							.then(() => {
+								vscode.window.showInformationMessage(`${e.document.uri.fsPath} checked out for write.`);
+							})
+							.catch((err) => {
+								vscode.window.showErrorMessage(`${e.document.uri.fsPath} could not be checked out.`);
+							});
+					}
+				}
+			}
+		});
+
 		// Auto checkout files if they're not writeable on save
 		vscode.workspace.onWillSaveTextDocument((e: vscode.TextDocumentWillSaveEvent) => {
 			if(e.document.isDirty && !e.document.isUntitled) {

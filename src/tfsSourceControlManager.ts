@@ -5,6 +5,7 @@ import { TFSDocumentContentProvider } from "./tfsDocumentContentProvider";
 import { TFSPendingChangesDatabase, StateChange } from "./tfsLocalDatabase";
 import { ITFSWorkspaceInfo, inTFS } from "./tfsWorkspaceInfo";
 import { TFSStatusItem } from "./TFSStatusItem";
+import * as fs from 'fs';
 
 export class TFSSourceControlManager {
 
@@ -18,7 +19,6 @@ export class TFSSourceControlManager {
 
         this.database = new TFSPendingChangesDatabase(context);
         this.documentContentProvider = new TFSDocumentContentProvider();
-
         
         for(const wks of workspaces) {
             for(const mapping of wks.mappings) {
@@ -55,6 +55,9 @@ export class TFSSourceControlManager {
     }    
     
     includeOne(fsPath: string): void {
+        if(!fs.existsSync(fsPath) || !fs.lstatSync(fsPath).isFile()) {
+            return;
+        }
         const wasModified = this.database.includeFileInChangeset(fsPath);
         if(wasModified === StateChange.Modified) {
             for(const wks of this.workspace) {
@@ -89,7 +92,10 @@ export class TFSSourceControlManager {
         // cut to relative path to save command line space
         const cwd = workspaceMapping.getMappingInfo().localPath;
         const rootLength = cwd.length + 1; // + 1 for "/"
-        const relativePaths = includedResources.resourceStates.map(state => '"' + state.resourceUri.fsPath.substr(rootLength) + '"');
+
+        const filesOnly = includedResources.resourceStates.filter(state => fs.existsSync(state.resourceUri.fsPath) && fs.lstatSync(state.resourceUri.fsPath).isFile());
+        const relativePaths = filesOnly.map(state => '"' + state.resourceUri.fsPath.substr(rootLength) + '"');
+
 
         //sanitize
         comment = comment.replace(/\"/g, "'");
@@ -156,6 +162,18 @@ export class TFSSourceControlManager {
             }
         }
         throw new Error("TFS path not configured!");
+    }
+
+    async isInSCM(path: string) {
+        if(!fs.existsSync(path)) {
+            return false;
+        }
+
+        const result = await this.cmd(['info', path]);
+        if(/No items match/g.exec(result.stdout)) {
+            return false;
+        }
+        return true;
     }
 
     refresh() {
