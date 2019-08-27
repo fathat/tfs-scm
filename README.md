@@ -2,6 +2,14 @@
 
 This is an extension to allow VSCode to interact with TFS Source Control using Visual Studio's tf.exe. Highly experimental/incomplete!! This is mostly intended to be used side by side with VS2019 at the moment rather than as a complete replacement.
 
+## Install
+
+1. Download a .vsix from the releases\ folder
+2. Press ctrl-shift-p to bring up the command palette and select "install from VSIX"
+![VSIX](docs/install.png)
+3. Update the extension settings to point to the correct tf.exe path (if different from default folder)
+![VSIX](docs/tfs-settings.png)
+
 ## Features
 
 ### Pending change list
