@@ -42,6 +42,9 @@ This extension contributes the following settings:
 
 ## Release Notes
 
+### 0.3.1
+* Only checkout files in SCM.
+
 ### 0.3.0
 * Ask for checkout if read-only file is modified and is in TFS
 

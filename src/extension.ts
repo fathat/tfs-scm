@@ -69,26 +69,27 @@ export async function activate(context: vscode.ExtensionContext) {
 			if(e.document.isDirty && !e.document.isUntitled) {
 				e.waitUntil(new Promise((resolve, reject) => {
 					if(!tfsUtil.isWritable(e.document.uri.fsPath)) {
+						scm.isInSCM(e.document.uri.fsPath).then((isInSCM) => {
+							/* This is gross, but neccessary. Mark the file as writeable, then
+							save, THEN checkout. The reason: checkout might take longer than
+							1.5 seconds, and if it does, vscode will disable this event
+							for future saves.
+							*/
+							fs.chmod(e.document.uri.fsPath, 0o755, (err) => {
+								if(err) {
+									reject(err);
+								} else {
+									resolve();
+								}
 
-						/* This is gross, but neccessary. Mark the file as writeable, then
-						save, THEN checkout. The reason: checkout might take longer than
-						1.5 seconds, and if it does, vscode will disable this event
-						for future saves.
-						*/
-						fs.chmod(e.document.uri.fsPath, 0o755, (err) => {
-							if(err) {
-								reject(err);
-							} else {
-								resolve();
-							}
-
-							commands.executeAction(scm, (scm: TFSSourceControlManager) => commands.checkout(scm, e.document.uri))
-								.then(() => {
-									vscode.window.showInformationMessage(`${e.document.uri.fsPath} checked out for write.`);
-								})
-								.catch((err) => {
-									vscode.window.showErrorMessage(`${e.document.uri.fsPath} could not be checked out.`);
-								});
+								commands.executeAction(scm, (scm: TFSSourceControlManager) => commands.checkout(scm, e.document.uri))
+									.then(() => {
+										vscode.window.showInformationMessage(`${e.document.uri.fsPath} checked out for write.`);
+									})
+									.catch((err) => {
+										vscode.window.showErrorMessage(`${e.document.uri.fsPath} could not be checked out.`);
+									});
+							});	
 						});
 					}
 				}));
