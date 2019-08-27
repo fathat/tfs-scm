@@ -42,6 +42,9 @@ This extension contributes the following settings:
 
 ## Release Notes
 
+### 0.3.0
+* Ask for checkout if read-only file is modified and is in TFS
+
 ### 0.2.0
 * Icons for renames and rename-edits
 

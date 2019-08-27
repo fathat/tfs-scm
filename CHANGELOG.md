@@ -2,6 +2,10 @@
 
 All notable changes to the "tfs-scm" extension will be documented in this file.
 
+## 0.3.0
+
+### Added
+* Ask for checkout if read-only file is modified and is in TFS
 
 ## 0.2.0
 
