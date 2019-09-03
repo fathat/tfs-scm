@@ -50,6 +50,9 @@ This extension contributes the following settings:
 
 ## Release Notes
 
+### 0.4.0
+* Option to automatically check out on modify
+
 ### 0.3.2
 * Fix issue where checkin would sometimes error because of missing UI info.
 

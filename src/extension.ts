@@ -10,6 +10,7 @@ let scm: TFSSourceControlManager;
 let statusBarItem: vscode.StatusBarItem;
 
 export async function activate(context: vscode.ExtensionContext) {
+	
 	const tfPath = vscode.workspace.getConfiguration("tfsSCM", null).get<string>("tfsPath");
     if (!tfPath) {
 		vscode.window.showErrorMessage(`tfs-scm path is not configured. Set path and restart vscode to use TFS.`);
@@ -50,16 +51,26 @@ export async function activate(context: vscode.ExtensionContext) {
 				if(shouldAskForCheckout[e.document.uri.fsPath]){
 					//prompt for check out
 					delete shouldAskForCheckout[e.document.uri.fsPath];
-					let action = await vscode.window.showInformationMessage(`${e.document.fileName} is read-only, checkout?`, "Checkout", "Ignore");
-					if(action === "Checkout") {
-						commands.executeAction(scm, (scm: TFSSourceControlManager) => commands.checkout(scm, e.document.uri))
+					const checkoutOnModify = vscode.workspace.getConfiguration("tfsSCM", null).get<boolean>("checkoutOnModify");
+					if(checkoutOnModify) {
+						commands
+							.executeAction(scm, (scm: TFSSourceControlManager) => commands.checkout(scm, e.document.uri))
 							.then(() => {
 								vscode.window.showInformationMessage(`${e.document.uri.fsPath} checked out for write.`);
-							})
-							.catch((err) => {
-								vscode.window.showErrorMessage(`${e.document.uri.fsPath} could not be checked out.`);
 							});
+					} else {
+						let action = await vscode.window.showInformationMessage(`${e.document.fileName} is read-only, checkout?`, "Checkout", "Ignore");
+						if(action === "Checkout") {
+							commands.executeAction(scm, (scm: TFSSourceControlManager) => commands.checkout(scm, e.document.uri))
+								.then(() => {
+									vscode.window.showInformationMessage(`${e.document.uri.fsPath} checked out for write.`);
+								})
+								.catch((err) => {
+									vscode.window.showErrorMessage(`${e.document.uri.fsPath} could not be checked out.`);
+								});
+						}
 					}
+					
 				}
 			}
 		});

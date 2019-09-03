@@ -2,6 +2,11 @@
 
 All notable changes to the "tfs-scm" extension will be documented in this file.
 
+## 0.4.0
+
+### Added
+* Option to automatically check out on modify
+
 ## 0.3.2
 
 ### Fixed
